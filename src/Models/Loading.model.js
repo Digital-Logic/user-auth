@@ -45,8 +45,8 @@ const loadingContent = ({ title, message, actions }) => ({
                 <DialogContentText align="center">Would you like to
                     <Button
                         color="primary"
-                        to={ROUTES.SIGN_IN}
-                        component={Link}>Sign in</Button>
+                        onClick={actions.onRedirect}
+                        >Sign in</Button>
                 </DialogContentText>
             </DialogContent>
         </Fragment>

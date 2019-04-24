@@ -50,7 +50,7 @@ function SignUpForm({handleSubmit, history }) {
 
     function onSubmit(formData, dispatch) {
         dispatch(authActions.signUp(formData))
-            .then(({redirect}) => {
+            .then(({redirect}={}) => {
                 if (redirect)
                     history.push(redirect);
             });

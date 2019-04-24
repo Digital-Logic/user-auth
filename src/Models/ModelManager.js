@@ -4,8 +4,9 @@ import { MODEL_TYPES, Loading, Conform, ChangePassword, FormComponent } from './
 import { modelActions, authActions, userActions } from '../Store';
 import { submit } from 'redux-form';
 import { ResetPasswordForm } from '../Forms';
+import { withRouter } from 'react-router-dom';
 
-function ModelManager ({ models, dispatch }) {
+function ModelManager ({ models, dispatch, history }) {
     return models.map(({ modelType, _id, actions, ...props }) => {
 
         switch(modelType) {
@@ -13,7 +14,7 @@ function ModelManager ({ models, dispatch }) {
                 return (
                     <Loading
                         key={_id}
-                        actions={ createActions(actions, dispatch) }
+                        actions={ createActions(actions, dispatch, history) }
                         { ...props }
                     />
                 );
@@ -22,7 +23,7 @@ function ModelManager ({ models, dispatch }) {
                 return (
                     <Conform
                         key={_id}
-                        actions={ createActions(actions, dispatch)}
+                        actions={ createActions(actions, dispatch, history)}
                         { ...props }
                     />
                 );
@@ -31,7 +32,7 @@ function ModelManager ({ models, dispatch }) {
                 return (
                     <ChangePassword
                         key={_id}
-                        actions={ createActions(actions, dispatch)}
+                        actions={ createActions(actions, dispatch, history)}
                         {...props} />
                 );
 
@@ -40,7 +41,7 @@ function ModelManager ({ models, dispatch }) {
                     <FormComponent
                         key={_id}
                         component={ ResetPasswordForm }
-                        actions={ createActions(actions,dispatch)}
+                        actions={ createActions(actions,dispatch, history)}
                         {...props} />
                 );
 
@@ -49,7 +50,7 @@ function ModelManager ({ models, dispatch }) {
         }
     });
 
-    function createActions(actions, dispatch) {
+    function createActions(actions, dispatch, history) {
         return Object.entries(actions).reduce((acc, [key, value]) => {
             // eslint-disable-next-line default-case
             switch(key) {
@@ -72,6 +73,13 @@ function ModelManager ({ models, dispatch }) {
 
                 case 'onDispatch':
                     acc[key] = () => value
+                    break;
+
+                case 'onRedirect':
+                    acc[key] = () => {
+                        history.push(value)
+                        dispatch(modelActions.destroyModel( actions.onClose ));
+                    }
                     break;
 
                 case 'onConform':
@@ -98,4 +106,4 @@ ModelManager.propTypes = {
 };
 
 
-export default ModelManager;
+export default withRouter(ModelManager);

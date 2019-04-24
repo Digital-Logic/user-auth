@@ -162,7 +162,7 @@ function purgeData(user) {
 function signUp(userData) {
     return function _signUp(dispatch) {
         // create loader
-        const model = dispatch(modelActions.createLoadingModel({ title: "Creating Account" }));
+        const model = dispatch(modelActions.createSignUpModel());
         dispatch(request(userData));
         return axios.post('/api/auth/sign-up', userData )
             .then(response => {

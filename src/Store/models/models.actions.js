@@ -1,5 +1,6 @@
 import { ACTIONS } from './models.reducer';
 import { MODEL_TYPES, MODEL_STATES } from './index';
+import { ROUTES } from '../../Routes';
 
 let modelId = 1;
 
@@ -46,6 +47,19 @@ function createRestPasswordModel({ token, ...props}) {
         }));
 
         return { _id: model._id };
+    }
+}
+
+function createSignUpModel() {
+    return function _createLoginModel(dispatch) {
+        const { model } = dispatch(createModel({
+            title: 'Creating Account',
+            modelType: MODEL_TYPES.LOADING,
+            actions: {
+                onRedirect: ROUTES.SIGN_IN
+            }
+        }));
+        return model;
     }
 }
 
@@ -134,5 +148,6 @@ export {
     createDeleteModel,
     createConformModel,
     createChangePasswordModel,
-    createRestPasswordModel
+    createRestPasswordModel,
+    createSignUpModel
 };
