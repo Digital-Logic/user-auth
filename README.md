@@ -2,8 +2,8 @@
 
 ## [Live Demo](https://auth-app.digital-logic.net/)
 
-* Front-end: react, redux, redux-form, redux-thunk, Material-ui, casl
-* Back-end: express, mongo / mongoose, casl, jwt, node-mailer
+* Front-end: React, Redux, Redux-Form, Redux-Thunk, Material-ui, casl
+* Back-end: Express, Mongo / Mongoose, Casl, JWT, Node-Mailer
     * [Source Code](https://github.com/Digital-Logic/express-hmr)
 
 ## Provides:
