@@ -4,7 +4,7 @@ import applyTheme from './applyTheme';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { Route, Switch, withRouter } from 'react-router-dom';
-import { ROUTES, Home, SignIn, SignUp, ResetPassword, Profile } from './Routes';
+import { ROUTES, Home, SignIn, SignUp, ResetPassword, Profile, NotFound } from './Routes';
 import AppBar from './Components/ApplicationBar';
 import { connect } from 'react-redux';
 import { ModelManager } from './Models';
@@ -71,9 +71,6 @@ class App extends Component {
                 <div className={classes.navSpacer} />
 
                 <Switch>
-                    <Route exact path={ROUTES.HOME} render={(props) =>
-                        <Home className={classes.card} {...props}/> } />
-
                     <Route path={ROUTES.SIGN_IN} render={(props) =>
                         <SignIn className={classes.card}
                             isAuthenticated={isAuthenticated} {...props}/> } />
@@ -86,6 +83,12 @@ class App extends Component {
 
                     <Route path={ROUTES.PROFILE} render={(props) =>
                         <Profile className={classes.card} {...props}/>} />
+
+                    <Route exact path={ROUTES.HOME} render={(props) =>
+                        <Home className={classes.card} {...props}/> } />
+
+                    <Route path={'/'} component={NotFound} />
+
                 </Switch>
 
                 <ModelManager

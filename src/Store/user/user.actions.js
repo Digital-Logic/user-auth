@@ -61,7 +61,7 @@ function deleteUser(user) {
     return function _deleteUser(dispatch) {
         dispatch(request());
         const model = dispatch(modelActions.createLoadingModel({
-            title: "Deleting User Account",
+            title: "Deleting Account",
             conform: 'Delete User'
         }));
 
@@ -71,6 +71,7 @@ function deleteUser(user) {
                 dispatch(modelActions.updateModel({
                     ...model,
                     state: MODEL_STATES.SUCCESS,
+                    title: "Account Deleted",
                     message: "User account has been deleted."
                 }));
                 dispatch(authActions.getAuth());
