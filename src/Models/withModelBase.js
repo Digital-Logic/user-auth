@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
@@ -18,13 +18,21 @@ function withModelBase(options) {
     function _withModelBase(WrappedComponent) {
         function WithModelBase({ state, setState, ...props }) {
 
+            // This block of code will prevent the model from changing to it's default state,
+            // right before the model is closed.
+            const [displayState, setDisplayState ] = useState(state);
+            useEffect(() => {
+                if(state !== STATES.CLOSED)
+                    setDisplayState(state);
+            },[state]);
+
             return (
                 <Dialog
                     open={state !== STATES.CLOSED}
                     onClose={ onClose(state, setState) }>
 
                     <WrappedComponent
-                        state={state}
+                        state={displayState}
                         setState={setState}
                         { ...props } />
 
