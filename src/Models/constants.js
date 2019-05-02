@@ -1,0 +1,11 @@
+const STATES = Object.freeze({
+    CLOSED: 'CLOSED',
+    LOADING: 'LOADING',
+    SUCCESS: 'SUCCESS',
+    FAILURE: 'FAILURE',
+    DUPLICATE_ACCOUNT: 'DUPLICATE_ACCOUNT'
+});
+
+export {
+    STATES
+};
