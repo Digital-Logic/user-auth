@@ -12,7 +12,7 @@ import withModelBase from './withModelBase';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 
-function SignUp({ state, setState, message }) {
+function SignUp({ state, setState, content, errorMessage }) {
 
     switch(state) {
         case STATES.SUCCESS:
@@ -31,7 +31,7 @@ function SignUp({ state, setState, message }) {
                 <Fragment>
                     <DialogTitle align="center">Failure</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">{ message || "Unknown Error Occurred"}</DialogContentText>
+                        <DialogContentText align="center">{ errorMessage || "Unknown Error Occurred"}</DialogContentText>
                     </DialogContent>
                     <CloseButton />
                 </Fragment>

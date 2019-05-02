@@ -11,31 +11,32 @@ import { STATES } from './constants';
 import withModelBase from './withModelBase';
 
 
-function LoadingModel({ state, setState }) {
+function LoadingModel({ state, setState, content}) {
 
-    //switch(state) {
-        // case STATES.SUCCESS:
-        //     return (
-        //         <Fragment>
-        //             <DialogTitle>Success</DialogTitle>
-        //             <DialogContent>
-        //                 <DialogContentText></DialogContentText>
-        //             </DialogContent>
-        //         </Fragment>
-        //     );
-        // case STATES.FAILURE:
-        //     return (
-        //         <Fragment>
-        //             <DialogTitle>Failure</DialogTitle>
-        //             <DialogContent>
-        //                 <DialogContentText>An error occurred</DialogContentText>
-        //             </DialogContent>
-        //         </Fragment>
-        //     );
-       // default:
+
+    switch(state) {
+        case STATES.SUCCESS:
+            return (
+                <Fragment>
+                    <DialogTitle>{ content[STATES.SUCCESS].title || 'Success' }</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText></DialogContentText>
+                    </DialogContent>
+                </Fragment>
+            );
+        case STATES.FAILURE:
+            return (
+                <Fragment>
+                    <DialogTitle>{ content[STATES.FAILURE].title || 'Failure'}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>An error occurred</DialogContentText>
+                    </DialogContent>
+                </Fragment>
+            );
+       default:
         return (
             <Fragment>
-                <DialogTitle>Loading</DialogTitle>
+                <DialogTitle>{ content[STATES.LOADING].title || 'Loading'}</DialogTitle>
                 <DialogContent>
                     <Progress />
                 </DialogContent>
@@ -50,7 +51,7 @@ function LoadingModel({ state, setState }) {
                 </DialogActions>
             </Fragment>
         );
-   // }
+    }
 }
 
 LoadingModel.propTypes = {

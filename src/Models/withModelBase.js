@@ -16,7 +16,12 @@ function withModelBase(options) {
     };
 
     function _withModelBase(WrappedComponent) {
-        function WithModelBase({ state, setState, ...props }) {
+        function WithModelBase({ state, setState,
+                content={
+                    [STATES.SUCCESS]: {},
+                    [STATES.FAILURE]: {},
+                    [STATES.LOADING]: {}
+                }, ...props }) {
 
             // This block of code will prevent the model from changing to it's default state,
             // right before the model is closed.
@@ -34,6 +39,7 @@ function withModelBase(options) {
                     <WrappedComponent
                         state={displayState}
                         setState={setState}
+                        content={content}
                         { ...props } />
 
                 </Dialog>
