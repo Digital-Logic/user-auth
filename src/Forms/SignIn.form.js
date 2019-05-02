@@ -14,12 +14,12 @@ const initialState = {
 };
 
 
-function SignIn() {
+function SignIn({ onSubmit }) {
 
     const [{ email, pwd }, dispatch ] = useReducer(reducer, initialState);
 
     return (
-        <Form onSubmit={onSubmit}>
+        <Form onSubmit={_onSubmit}>
 
             <Input
                 label="eMail"
@@ -47,9 +47,12 @@ function SignIn() {
         const { name, value } = event.target;
         dispatch({ type: name, value });
     }
+    function _onSubmit() {
 
-    function onSubmit() {
-        console.log('Submitting Data');
+        onSubmit({
+            email,
+            pwd
+        });
     }
 }
 

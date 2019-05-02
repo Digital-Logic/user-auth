@@ -5,7 +5,10 @@ const ACTIONS = Object.freeze({
     GET_AUTH_FAILURE: 'GET_AUTH_FAILURE',
     SIGN_UP_REQUEST: 'SIGN_UP_REQUEST',
     SIGN_UP_SUCCESS: 'SIGN_UP_SUCCESS',
-    SIGN_UP_FAILURE: 'SIGN_UP_FAILURE'
+    SIGN_UP_FAILURE: 'SIGN_UP_FAILURE',
+    SIGN_IN_REQUEST: 'SIGN_IN_REQUEST',
+    SIGN_IN_SUCCESS: 'SIGN_IN_SUCCESS',
+    SIGN_IN_FAILURE: 'SIGN_IN_FAILURE'
 });
 
 const initialState = {
@@ -23,9 +26,11 @@ function reducer(state=initialState, { type, user }) {
                 isAuthenticating: true
             };
 
+        case ACTIONS.SIGN_IN_FAILURE:
         case ACTIONS.GET_AUTH_FAILURE:
             return initialState;
 
+        case ACTIONS.SIGN_IN_SUCCESS:
         case ACTIONS.GET_AUTH_SUCCESS:
             return {
                 ...state,
