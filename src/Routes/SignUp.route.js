@@ -12,6 +12,7 @@ function SignUp({ className, dispatchSignUp }) {
 
     const [ state, setState ] = useState(STATES.CLOSED);
     const [ message, setMessage ] = useState('');
+    const [ formKey, setFormKey ] = useState(1);
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -22,7 +23,11 @@ function SignUp({ className, dispatchSignUp }) {
             <Grid item className={className}>
                 <Card raised>
                     <CardContent>
-                        <SignUpForm onSubmit={onSubmit}/>
+
+                        <SignUpForm
+                            key={formKey}
+                            onSubmit={onSubmit} />
+
                     </CardContent>
                 </Card>
             </Grid>
@@ -37,7 +42,11 @@ function SignUp({ className, dispatchSignUp }) {
     );
 
     function onSubmit(userData) {
-        dispatchSignUp({ state, setState, setMessage, userData });
+        dispatchSignUp({ state, setState, setMessage, userData })
+            .then(({ clearForm }={}) => {
+                if (clearForm)
+                    setFormKey(formKey + 1);
+            });
     }
 }
 

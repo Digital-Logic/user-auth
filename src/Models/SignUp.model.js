@@ -9,7 +9,8 @@ import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
 import withModelBase from './withModelBase';
-
+import { ROUTES } from '../Routes';
+import { Link } from 'react-router-dom';
 
 function SignUp({ state, setState, message }) {
 
@@ -17,42 +18,67 @@ function SignUp({ state, setState, message }) {
         case STATES.SUCCESS:
             return (
                 <Fragment>
-                    <DialogTitle>Account Created</DialogTitle>
+                    <DialogTitle align="center">Account Created</DialogTitle>
                     <DialogContent>
                         <DialogContentText align="center">Your account has been created.</DialogContentText>
                         <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
-                        <DialogContentText align="right">Thank You.</DialogContentText>
                     </DialogContent>
+                    <CloseButton />
                 </Fragment>
             );
         case STATES.FAILURE:
             return (
                 <Fragment>
-                    <DialogTitle>Failure</DialogTitle>
+                    <DialogTitle align="center">Failure</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">{ message }</DialogContentText>
+                        <DialogContentText align="center">{ message || "Unknown Error Occurred"}</DialogContentText>
                     </DialogContent>
+                    <CloseButton />
+                </Fragment>
+            );
+
+        case STATES.DUPLICATE_ACCOUNT:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Account Exist</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">An account with that email address already exist.</DialogContentText>
+
+                        <DialogContentText align="center">
+                            Would you like to <Button color="primary" to={ROUTES.SIGN_IN} component={Link}>sign in</Button>
+                        </DialogContentText>
+
+                    </DialogContent>
+                    <CloseButton />
                 </Fragment>
             );
 
         default:
             return (
                 <Fragment>
-                    <DialogTitle>Creating Account</DialogTitle>
+                    <DialogTitle align="center">Creating Account</DialogTitle>
                     <DialogContent>
                         <Progress />
                     </DialogContent>
-                    <DialogActions>
-                        <Grid container justify="flex-end">
-
-                        <Button
-                            disabled={true}
-                            onClick={() => setState(STATES.CLOSED)}>Close</Button>
-
-                        </Grid>
-                    </DialogActions>
+                    <CloseButton />
                 </Fragment>
             );
+    }
+
+    function CloseButton() {
+        return (
+            <DialogActions>
+                <Grid container justify="flex-end">
+                    <Button
+                        disabled={state === STATES.LOADING}
+                        onClick={onClose}>close</Button>
+                </Grid>
+            </DialogActions>
+        );
+    }
+
+    function onClose() {
+        setState(STATES.CLOSED);
     }
 }
 

@@ -39,12 +39,21 @@ function signUp({ model, userData }) {
                 model.setState(MODEL_STATES.SUCCESS);
 
                 return {
-                    redirect: ROUTES.HOME
+                    clearForm: true
                 };
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.setState(MODEL_STATES.FAILURE);
+
+                switch(error.response.status) {
+                    case 409:
+                        model.setState(MODEL_STATES.DUPLICATE_ACCOUNT);
+                        break;
+                    default:
+                        model.setMessage(error.response.data || "Unknown error occurred");
+                        model.setState(MODEL_STATES.FAILURE);
+                }
+
             });
     }
 
