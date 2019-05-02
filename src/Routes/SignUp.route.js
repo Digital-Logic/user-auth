@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 function SignUp({ className, dispatchSignUp }) {
 
     const [ state, setState ] = useState(STATES.CLOSED);
-    const [ message, setMessage ] = useState('');
+    const [ errorMessage, setErrorMessage ] = useState('');
     const [ formKey, setFormKey ] = useState(1);
 
     return (
@@ -35,14 +35,14 @@ function SignUp({ className, dispatchSignUp }) {
             <SignUpModel
                 state={state}
                 setState={setState}
-                message={message}
+                errorMessage={errorMessage}
                 />
 
         </Grid>
     );
 
     function onSubmit(userData) {
-        dispatchSignUp({ state, setState, setMessage, userData })
+        dispatchSignUp({ state, setState, setErrorMessage, userData })
             .then(({ clearForm }={}) => {
                 if (clearForm)
                     setFormKey(formKey + 1);

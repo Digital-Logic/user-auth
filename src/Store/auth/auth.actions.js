@@ -50,7 +50,7 @@ function signUp({ model, userData }) {
                         model.setState(MODEL_STATES.DUPLICATE_ACCOUNT);
                         break;
                     default:
-                        model.setMessage(error.response.data || "Unknown error occurred");
+                        model.setErrorMessage(error.response.data || "Unknown error occurred");
                         model.setState(MODEL_STATES.FAILURE);
                 }
             });
@@ -100,6 +100,15 @@ function signIn({ model, userData }) {
     function request() { return { type: ACTIONS.SIGN_IN_REQUEST }; }
     function success(user) { return { type: ACTIONS.SIGN_IN_SUCCESS, user }; }
     function failure(error) { return { type: ACTIONS.SIGN_IN_FAILURE, error }; }
+}
+
+
+function signOut({ model }) {
+    return function _signOut(dispatch) {
+
+    }
+
+    function request() {}
 }
 
 
