@@ -1,14 +1,12 @@
 import React, { Fragment } from 'react';
 import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
-import withModelBase from './withModelBase';
+import withModelBase, { CloseButton } from './withModelBase';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 
@@ -23,7 +21,7 @@ function SignUp({ state, onClose, errorMessage }) {
                         <DialogContentText align="center">Your account has been created.</DialogContentText>
                         <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose}/>
                 </Fragment>
             );
         case STATES.FAILURE:
@@ -33,7 +31,7 @@ function SignUp({ state, onClose, errorMessage }) {
                     <DialogContent>
                         <DialogContentText align="center">{ errorMessage || "Unknown Error Occurred"}</DialogContentText>
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose}/>
                 </Fragment>
             );
 
@@ -49,7 +47,7 @@ function SignUp({ state, onClose, errorMessage }) {
                         </DialogContentText>
 
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose}/>
                 </Fragment>
             );
 
@@ -60,21 +58,9 @@ function SignUp({ state, onClose, errorMessage }) {
                     <DialogContent>
                         <Progress />
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose}/>
                 </Fragment>
             );
-    }
-
-    function CloseButton() {
-        return (
-            <DialogActions>
-                <Grid container justify="flex-end">
-                    <Button
-                        disabled={state === STATES.LOADING}
-                        onClick={ onClose }>close</Button>
-                </Grid>
-            </DialogActions>
-        );
     }
 }
 

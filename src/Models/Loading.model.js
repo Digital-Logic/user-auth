@@ -1,17 +1,14 @@
 import React, { Fragment } from 'react';
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
-import withModelBase from './withModelBase';
+import withModelBase, { CloseButton } from './withModelBase';
 
 
-function LoadingModel({ state, setState, content, errorMessage}) {
+function LoadingModel({ state, onClose, content, errorMessage}) {
 
     switch(state) {
         case STATES.SUCCESS:
@@ -39,15 +36,7 @@ function LoadingModel({ state, setState, content, errorMessage}) {
                 <DialogContent>
                     <Progress />
                 </DialogContent>
-                <DialogActions>
-                    <Grid container justify="flex-end">
-
-                    <Button
-                        disabled={true}
-                        onClick={() => setState(STATES.CLOSED)}>Close</Button>
-
-                    </Grid>
-                </DialogActions>
+                <CloseButton onClose={onClose} />
             </Fragment>
         );
     }

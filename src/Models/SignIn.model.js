@@ -8,11 +8,10 @@ import Grid from '@material-ui/core/Grid';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
-import withModelBase from './withModelBase';
-import { ROUTES } from '../Routes';
-import { Link } from 'react-router-dom';
+import withModelBase, { CloseButton } from './withModelBase';
 
-function SignIn({ state, setState, message }) {
+
+function SignIn({ state, onClose, message }) {
 
     switch(state) {
         case STATES.FAILURE:
@@ -22,18 +21,19 @@ function SignIn({ state, setState, message }) {
                     <DialogContent>
                         <DialogContentText align="center">{ message || "Invalid user name or password"}</DialogContentText>
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose} />
                 </Fragment>
             );
         case STATES.ACCOUNT_ACTIVATION_REQUIRED:
             return (
                 <Fragment>
-                    <DialogTitle align="center">Failure</DialogTitle>
+                    <DialogTitle align="center">Account Activation Required</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">Account activation required.</DialogContentText>
-                        <DialogContentText align="center"><Button>Resend activation link</Button></DialogContentText>
+                        <DialogContentText align="center">Your account has not been activated yet.</DialogContentText>
+                        <DialogContentText align="center">Please check your email for an activation link.</DialogContentText>
+                        <DialogContentText align="center"><Button color="primary">Resend activation link</Button></DialogContentText>
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose} />
                 </Fragment>
             );
         default:
@@ -43,25 +43,9 @@ function SignIn({ state, setState, message }) {
                     <DialogContent>
                         <Progress />
                     </DialogContent>
-                    <CloseButton />
+                    <CloseButton onClose={onClose} />
                 </Fragment>
             );
-    }
-
-    function CloseButton() {
-        return (
-            <DialogActions>
-                <Grid container justify="flex-end">
-                    <Button
-                        disabled={state === STATES.LOADING}
-                        onClick={onClose}>close</Button>
-                </Grid>
-            </DialogActions>
-        );
-    }
-
-    function onClose() {
-        setState(STATES.CLOSED);
     }
 }
 
