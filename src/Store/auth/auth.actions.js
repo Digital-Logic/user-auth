@@ -85,7 +85,7 @@ function signIn({ model, userData }) {
                     default:
                         dispatch(failure(error));
                         model.setState(MODEL_STATES.FAILURE);
-                        model.setMessage(typeof error.response.data === 'string' ?
+                        model.setErrorMessage(typeof error.response.data === 'string' ?
                             error.response.data : JSON.stringify(error.response.data));
                 }
             });

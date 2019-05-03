@@ -9,15 +9,15 @@ import { STATES } from './constants';
 import withModelBase, { CloseButton } from './withModelBase';
 
 
-function SignIn({ state, onClose, message, onSendVerificationEmail }) {
+function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
 
     switch(state) {
         case STATES.FAILURE:
             return (
                 <Fragment>
-                    <DialogTitle align="center">Failure</DialogTitle>
+                    <DialogTitle align="center">Sign In Failure</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">{ message || "Invalid user name or password"}</DialogContentText>
+                        <DialogContentText align="center">{ errorMessage || "Invalid user name or password"}</DialogContentText>
                     </DialogContent>
                     <CloseButton onClose={onClose} />
                 </Fragment>
