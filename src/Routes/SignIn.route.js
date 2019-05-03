@@ -8,11 +8,11 @@ import { connect } from 'react-redux';
 import { authActions } from '../Store';
 import { STATES, SignInModel } from '../Models';
 
-function SignIn({ className, dispatchSignIn }) {
+function SignIn({ className, dispatchSignIn, history }) {
 
     const [formKey, setFormKey] = useState(1);
     const [state, setState] = useState(STATES.CLOSED);
-    const [message, setMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState();
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -34,13 +34,20 @@ function SignIn({ className, dispatchSignIn }) {
             <SignInModel
                 state={state}
                 setState={setState}
-                message={message}
+                errorMessage={errorMessage}
                 />
         </Grid>
     );
 
     function onSubmit(userData) {
-        dispatchSignIn({ model: { state, setState, setMessage}, userData})
+        dispatchSignIn({ model: { state, setState, setErrorMessage}, userData})
+            .then(({ clearForm, redirect }={}) => {
+                if (clearForm)
+                    setFormKey(formKey + 1);
+
+                if (redirect)
+                    history.push(redirect);
+            });
     }
 }
 

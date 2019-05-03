@@ -5,7 +5,7 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
 
-function getAuth(model) {
+function getAuth({ model }) {
 
     return function _getAuth(dispatch) {
         dispatch(request());
@@ -72,9 +72,7 @@ function signIn({ model, userData }) {
                 dispatch(success(response.data));
                 model.setState(MODEL_STATES.CLOSED);
 
-
                 return {
-                    clearForm: true,
                     redirect: ROUTES.PROFILE
                 };
             })
@@ -105,15 +103,42 @@ function signIn({ model, userData }) {
 
 function signOut({ model }) {
     return function _signOut(dispatch) {
+        dispatch(request());
 
+        model.setState(MODEL_STATES.LOADING);
+        model.setContent({
+            [MODEL_STATES.LOADING]: {
+                title: 'Logging out'
+            }
+        });
+
+        return axios.get('/api/auth/sign-out')
+            .then(response => {
+                dispatch(success());
+                // Get new authentication
+                return dispatch(getAuth({ model }));
+            })
+            // Redirect the user to the home page
+            .then(response => {
+                return {
+                    redirect: ROUTES.HOME
+                };
+            })
+            .catch(error => {
+                dispatch(failure(error));
+                model.setState(MODEL_STATES.CLOSED);
+            });
     }
 
-    function request() {}
+    function request() { return { type: ACTIONS.SIGN_OUT_REQUEST }; }
+    function success() { return { type: ACTIONS.SIGN_OUT_SUCCESS }; }
+    function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE }; }
 }
 
 
 export {
     getAuth,
     signUp,
-    signIn
+    signIn,
+    signOut
 };

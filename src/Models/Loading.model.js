@@ -11,8 +11,7 @@ import { STATES } from './constants';
 import withModelBase from './withModelBase';
 
 
-function LoadingModel({ state, setState, content}) {
-
+function LoadingModel({ state, setState, content, errorMessage}) {
 
     switch(state) {
         case STATES.SUCCESS:
@@ -29,7 +28,7 @@ function LoadingModel({ state, setState, content}) {
                 <Fragment>
                     <DialogTitle>{ content[STATES.FAILURE].title || 'Failure'}</DialogTitle>
                     <DialogContent>
-                        <DialogContentText>An error occurred</DialogContentText>
+                        <DialogContentText>{ errorMessage || 'An error occurred' }</DialogContentText>
                     </DialogContent>
                 </Fragment>
             );

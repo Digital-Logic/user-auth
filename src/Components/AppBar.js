@@ -19,7 +19,7 @@ const styles = theme => ({
     }
 });
 
-function AppBar({ classes, isAuthenticated }) {
+function AppBar({ classes, isAuthenticated, signOut }) {
     return (
         <AppBarComponent position="fixed">
             <Toolbar color="primary">
@@ -28,7 +28,7 @@ function AppBar({ classes, isAuthenticated }) {
                     isAuthenticated ? (
                         <Fragment>
                             <Button to={ROUTES.PROFILE} component={Link}>Profile</Button>
-                            <Button>Logout</Button>
+                            <Button onClick={signOut}>Logout</Button>
                         </Fragment>
                     ) : (
                         <Fragment>

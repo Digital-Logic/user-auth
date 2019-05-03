@@ -25,19 +25,24 @@ const styles = theme => ({
     }
 });
 
-function App({ classes, isAuthenticated, getAuth, signUp }) {
+function App({ classes, isAuthenticated, getAuth, signOut }) {
 
     const [ authState, setAuthState ] = useState(MODEL_STATES.CLOSED);
+    const [ modelContent, setModelContent ] = useState();
 
     // Initialize logged in user
     useEffect(() => {
-        getAuth({ authState, setAuthState });
+        getAuth({ state: authState, setState: setAuthState });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[]); // This effect will run once, and only once.
 
     return (
         <div className={classes.root}>
-            <AppBar isAuthenticated={isAuthenticated}/>
+            <AppBar
+                isAuthenticated={isAuthenticated}
+                signOut={() => signOut({ state: authState, setState: setAuthState, setContent: setModelContent })}
+                />
+
             <div className={classes.spacer} />
 
             <Switch>
@@ -58,7 +63,10 @@ function App({ classes, isAuthenticated, getAuth, signUp }) {
 
             <LoadingModel
                 state={authState}
-                setState={setAuthState} />
+                setState={setAuthState}
+                content={modelContent}
+                    />
+
         </div>
     );
 }
@@ -71,8 +79,8 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
     return {
-        getAuth: ({ authState, setAuthState}) =>
-            dispatch(   authActions.getAuth({ state: authState, setState: setAuthState })   ),
+        getAuth: (model) => dispatch(authActions.getAuth({ model })),
+        signOut: (model) => dispatch(authActions.signOut({ model }))
     };
 }
 
