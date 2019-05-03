@@ -4,7 +4,7 @@ import applyTheme from './applyTheme';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { ROUTES, Home, Profile, SignIn, SignUp, ResetPassword, NotFound } from './Routes';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import AppBar from './Components/AppBar';
 import { LoadingModel, STATES as MODEL_STATES } from './Models';
 import { connect } from 'react-redux';
@@ -25,7 +25,7 @@ const styles = theme => ({
     }
 });
 
-function App({ classes, isAuthenticated, getAuth, signOut }) {
+function App({ classes, isAuthenticated, getAuth, signOut, history }) {
 
     const [ authState, setAuthState ] = useState(MODEL_STATES.CLOSED);
     const [ modelContent, setModelContent ] = useState();
@@ -40,7 +40,7 @@ function App({ classes, isAuthenticated, getAuth, signOut }) {
         <div className={classes.root}>
             <AppBar
                 isAuthenticated={isAuthenticated}
-                signOut={() => signOut({ state: authState, setState: setAuthState, setContent: setModelContent })}
+                signOut={() => signOut({ model: { state: authState, setState: setAuthState, setContent: setModelContent}, history })}
                 />
 
             <div className={classes.spacer} />
@@ -80,7 +80,12 @@ function mapState(state) {
 function mapDispatch(dispatch) {
     return {
         getAuth: (model) => dispatch(authActions.getAuth({ model })),
-        signOut: (model) => dispatch(authActions.signOut({ model }))
+
+        signOut: ({ model, history }) => {
+            dispatch(authActions.signOut({ model }))
+                // Redirect to home page on log out.
+                .then(() => history.push(ROUTES.HOME));
+        }
     };
 }
 
@@ -92,5 +97,6 @@ App.propTypes = {
 export default compose(
     applyTheme,
     withStyles(styles),
+    withRouter,
     connect(mapState, mapDispatch)
 )(App);

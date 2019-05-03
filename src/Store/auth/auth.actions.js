@@ -116,13 +116,7 @@ function signOut({ model }) {
             .then(response => {
                 dispatch(success());
                 // Get new authentication
-                return dispatch(getAuth({ model }));
-            })
-            // Redirect the user to the home page
-            .then(response => {
-                return {
-                    redirect: ROUTES.HOME
-                };
+                dispatch(getAuth({ model }));
             })
             .catch(error => {
                 dispatch(failure(error));
