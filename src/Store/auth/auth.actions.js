@@ -5,20 +5,17 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
 
-function getAuth({ model }) {
+function getAuth() {
 
     return function _getAuth(dispatch) {
         dispatch(request());
-        model.setState(MODEL_STATES.LOADING);
 
         return axios.get('/api/auth/sign-in')
             .then(response => {
                 dispatch(success(response.data));
-                model.setState(MODEL_STATES.CLOSED);
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.setState(MODEL_STATES.CLOSED);
             });
     };
 
@@ -116,7 +113,10 @@ function signOut({ model }) {
             .then(response => {
                 dispatch(success());
                 // Get new authentication
-                dispatch(getAuth({ model }));
+                dispatch(getAuth())
+                    .then(() => {
+                        model.setState(MODEL_STATES.CLOSED);
+                    });
             })
             .catch(error => {
                 dispatch(failure(error));
@@ -129,10 +129,60 @@ function signOut({ model }) {
     function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE }; }
 }
 
+function processQueryStringToken({ token, id: userID, model })
+{
+    const TOKEN_TYPE = Object.freeze({
+        VERIFY_EMAIL: "VERIFY_EMAIL",
+        RESET_PASSWORD: "RESET_PASSWORD"
+    });
+
+    return function _processQueryStringToken (dispatch) {
+
+        // If we do not receive a token to process, return and close the model
+        if (!token)
+            return { closeModel: true };
+
+        const { type, id } = jwt.decode(token);
+
+        // Check if the current user's id is the same as the,
+        // userID in the jwt token, if it is ignore the request
+        if (userID && userID === id) {
+            return;
+        }
+
+        dispatch(request(type));
+
+        if (type === TOKEN_TYPE.VERIFY_EMAIL) {
+            return axios.post('/api/auth/validate-token', { token })
+                .then(response => {
+
+                    if (response.status === 200) {
+                        dispatch(success());
+                        model.setState(MODEL_STATES.ACCOUNT_ACTIVATED);
+                    }
+
+                    return {
+                        closeModel: true,
+                    };
+                })
+                .catch(error => {
+                    dispatch(failure(error));
+                    model.setState(MODEL_STATES.ACCOUNT_ACTIVATION_TOKEN_INVALID);
+                });
+        }
+
+    }
+
+    function request(tokenType) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_REQUEST, tokenType }; }
+    function success() { return { type: ACTIONS.PROCESS_QUERY_TOKEN_SUCCESS }; }
+    function failure(error) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_FAILURE, error }; }
+}
+
 
 export {
     getAuth,
     signUp,
     signIn,
-    signOut
+    signOut,
+    processQueryStringToken
 };

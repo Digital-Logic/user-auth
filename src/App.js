@@ -6,9 +6,10 @@ import PropTypes from 'prop-types';
 import { ROUTES, Home, Profile, SignIn, SignUp, ResetPassword, NotFound } from './Routes';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import AppBar from './Components/AppBar';
-import { LoadingModel, STATES as MODEL_STATES } from './Models';
+import { AppInitModel, STATES as MODEL_STATES } from './Models';
 import { connect } from 'react-redux';
 import { authActions } from './Store';
+import queryString from 'query-string';
 
 const styles = theme => ({
     root: {
@@ -25,16 +26,33 @@ const styles = theme => ({
     }
 });
 
-function App({ classes, isAuthenticated, getAuth, signOut, history }) {
+
+function App({ classes, isAuthenticated, id, getAuth, signOut, processToken, history, location }) {
 
     const [ authState, setAuthState ] = useState(MODEL_STATES.CLOSED);
     const [ modelContent, setModelContent ] = useState();
 
-    // Initialize logged in user
+    // Initialize app
     useEffect(() => {
-        getAuth({ state: authState, setState: setAuthState });
+        // Create loading model
+        setAuthState(MODEL_STATES.LOADING);
+        // Process query string tokens
+        const params = queryString.parse(location.search);
+
+
+        Promise.all([
+                getAuth(),
+                processToken({ token: params.token, id, model: { state: authState, setState: setAuthState }})
+            ])
+            .then(([ authResponse, { closeModel }={}]) => {
+                history.replace(location.path); // remove query params
+
+                if (closeModel)
+                    setAuthState(MODEL_STATES.CLOSED);
+            });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]); // This effect will run once, and only once.
+    },[]); // This effect will run on mount only
 
     return (
         <div className={classes.root}>
@@ -61,10 +79,11 @@ function App({ classes, isAuthenticated, getAuth, signOut, history }) {
                 <Route path="/" render={(props) => <NotFound className={classes.card} {...props} />} />
             </Switch>
 
-            <LoadingModel
+            <AppInitModel
                 state={authState}
                 setState={setAuthState}
                 content={modelContent}
+                onLogin={() => history.push(ROUTES.SIGN_IN)}
                     />
 
         </div>
@@ -73,19 +92,23 @@ function App({ classes, isAuthenticated, getAuth, signOut, history }) {
 
 function mapState(state) {
     return {
-        isAuthenticated: state.auth.isAuthenticated
+        isAuthenticated: state.auth.isAuthenticated,
+        id: state.auth.id
     };
 }
 
 function mapDispatch(dispatch) {
     return {
-        getAuth: (model) => dispatch(authActions.getAuth({ model })),
+        getAuth: () => dispatch(authActions.getAuth()),
 
         signOut: ({ model, history }) => {
             dispatch(authActions.signOut({ model }))
                 // Redirect to home page on log out.
                 .then(() => history.push(ROUTES.HOME));
-        }
+        },
+
+        processToken: ({ token, model }) =>
+            dispatch(authActions.processQueryStringToken({ token, model }))
     };
 }
 

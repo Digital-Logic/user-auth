@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
 
@@ -57,4 +60,24 @@ function withModelBase() {
 }
 
 
+function CloseButton({ onClose, state }) {
+    return (
+        <DialogActions>
+            <Grid container justify="flex-end">
+
+            <Button
+                disabled={ state === STATES.LOADING }
+                onClick={onClose}>Close</Button>
+
+            </Grid>
+        </DialogActions>
+    );
+}
+
+
 export default withModelBase;
+
+
+export {
+    CloseButton
+};
