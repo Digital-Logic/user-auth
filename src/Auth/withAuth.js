@@ -8,9 +8,7 @@ import PropTypes from 'prop-types';
 
 
 function withAuth(permissions) {
-
     function _withAuth(WrappedComponent) {
-
         class WithAuth extends PureComponent {
 
             render() {
