@@ -119,7 +119,7 @@ function withGroupValidation (WrappedComponent) {
         }
         static get defaultProps() {
             return {
-                validationDelay: 250,
+                validationDelay: 200,
                 searchDepth: 2
             };
         }
