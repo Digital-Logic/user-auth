@@ -12,7 +12,7 @@ import withModelBase from './withModelBase';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 
-function SignUp({ state, setState, content, errorMessage }) {
+function SignUp({ state, onClose, errorMessage }) {
 
     switch(state) {
         case STATES.SUCCESS:
@@ -71,14 +71,10 @@ function SignUp({ state, setState, content, errorMessage }) {
                 <Grid container justify="flex-end">
                     <Button
                         disabled={state === STATES.LOADING}
-                        onClick={onClose}>close</Button>
+                        onClick={ onClose }>close</Button>
                 </Grid>
             </DialogActions>
         );
-    }
-
-    function onClose() {
-        setState(STATES.CLOSED);
     }
 }
 

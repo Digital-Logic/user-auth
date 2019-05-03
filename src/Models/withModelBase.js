@@ -4,19 +4,14 @@ import PropTypes from 'prop-types';
 import { STATES } from './constants';
 
 
-function withModelBase(options) {
-
-    // Configuration
-    const { onClose } = {
-        onClose: (state, setState) => () => {
-            if (state !== STATES.LOADING)
-                setState(STATES.CLOSED);
-        },
-        ...options
-    };
+function withModelBase() {
 
     function _withModelBase(WrappedComponent) {
         function WithModelBase({ state, setState,
+                onClose = () => {
+                    if (state !== STATES.LOADING)
+                        setState(STATES.CLOSED)
+                },
                 content={
                     [STATES.SUCCESS]: {},
                     [STATES.FAILURE]: {},
@@ -34,11 +29,12 @@ function withModelBase(options) {
             return (
                 <Dialog
                     open={state !== STATES.CLOSED}
-                    onClose={ onClose(state, setState) }>
+                    onClose={ onClose }>
 
                     <WrappedComponent
                         state={displayState}
                         setState={setState}
+                        onClose={ onClose }
                         content={content}
                         { ...props } />
 

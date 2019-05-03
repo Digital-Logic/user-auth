@@ -7,8 +7,9 @@ import SignUpForm from '../Forms/SignUp.form';
 import { STATES, SignUpModel } from '../Models';
 import { authActions } from '../Store';
 import { connect } from 'react-redux';
+import { ROUTES } from '../Routes';
 
-function SignUp({ className, dispatchSignUp }) {
+function SignUp({ className, dispatchSignUp, history }) {
 
     const [ state, setState ] = useState(STATES.CLOSED);
     const [ errorMessage, setErrorMessage ] = useState('');
@@ -36,6 +37,15 @@ function SignUp({ className, dispatchSignUp }) {
                 state={state}
                 setState={setState}
                 errorMessage={errorMessage}
+                onClose={() => {
+                    if (state !== STATES.LOADING) {
+                        if (state === STATES.SUCCESS)
+                            history.push(ROUTES.HOME);
+                        else {
+                            setState(STATES.CLOSED);
+                        }
+                    }
+                }}
                 />
 
         </Grid>
