@@ -178,11 +178,38 @@ function processQueryStringToken({ token, id: userID, model })
     function failure(error) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_FAILURE, error }; }
 }
 
+function sendEmailVerification({ userData, model }) {
+    return function _sendEmailVerification(dispatch) {
+        dispatch(request(userData));
+
+        model.setState(MODEL_STATES.LOADING);
+
+        return axios.post('/api/auth/validate-email', userData)
+            .then(response => {
+                dispatch(success(response));
+                model.setState(MODEL_STATES.ACCOUNT_ACTIVATION_SEND);
+
+                return {
+                    clearForm: true
+                };
+            })
+            .catch(error => {
+                dispatch(failure(error));
+                model.setState(MODEL_STATES.ACCOUNT_ACTIVATION_FAILURE);
+            });
+    }
+
+    function request(user) { return { type: ACTIONS.SEND_EMAIL_VERIFICATION_REQUEST, user }; }
+    function success(response) { return { type: ACTIONS.SEND_EMAIL_VERIFICATION_SUCCESS, response }; }
+    function failure(error) { return { type: ACTIONS.SEND_EMAIL_VERIFICATION_FAILURE, error }; }
+}
+
 
 export {
     getAuth,
     signUp,
     signIn,
     signOut,
-    processQueryStringToken
+    processQueryStringToken,
+    sendEmailVerification
 };

@@ -8,11 +8,12 @@ import { connect } from 'react-redux';
 import { authActions } from '../Store';
 import { STATES, SignInModel } from '../Models';
 
-function SignIn({ className, dispatchSignIn, history }) {
+function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
 
     const [formKey, setFormKey] = useState(1);
     const [state, setState] = useState(STATES.CLOSED);
     const [errorMessage, setErrorMessage] = useState();
+    const [userData, setUserData] = useState();
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -35,25 +36,40 @@ function SignIn({ className, dispatchSignIn, history }) {
                 state={state}
                 setState={setState}
                 errorMessage={errorMessage}
+                onSendVerificationEmail={() => {
+                    sendVerificationEmail({ userData, model: { state, setState, setErrorMessage } })
+                        .then(({ clearForm, redirect }={}) => {
+                            if (redirect)
+                                history.push(redirect);
+
+                            if (clearForm)
+                                setFormKey(formKey + 1);
+                        });
+                }}
                 />
         </Grid>
     );
 
     function onSubmit(userData) {
-        dispatchSignIn({ model: { state, setState, setErrorMessage}, userData})
+
+        setUserData(userData);
+
+        dispatchSignIn({ userData, model: { state, setState, setErrorMessage} })
             .then(({ clearForm, redirect }={}) => {
+                if(redirect)
+                    history.push(redirect);
+
                 if (clearForm)
                     setFormKey(formKey + 1);
-
-                if (redirect)
-                    history.push(redirect);
             });
     }
 }
 
 function mapDispatch(dispatch) {
     return {
-        dispatchSignIn: ({ model, userData}) => dispatch(authActions.signIn({ model, userData }))
+        dispatchSignIn: ({ userData, model }) => dispatch(authActions.signIn({ userData, model })),
+        sendVerificationEmail: ({ userData, model }) =>
+                dispatch(authActions.sendEmailVerification({ userData, model }))
     };
 }
 
