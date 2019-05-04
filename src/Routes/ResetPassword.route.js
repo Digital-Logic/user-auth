@@ -10,7 +10,7 @@ import { ROUTES } from '../Routes';
 import { connect } from 'react-redux';
 import { authActions } from '../Store';
 import { STATES as MODEL_STATES, ResetPasswordModel } from '../Models'
-import { SignInLink } from './SignIn.route'
+import { SignUpLink } from './SignUp.route'
 
 function ResetPassword({ className, resetPassword, sendVerificationEmail, history }) {
 
@@ -35,7 +35,7 @@ function ResetPassword({ className, resetPassword, sendVerificationEmail, histor
                 </Card>
             </Grid>
             <Grid item>
-                <SignInLink />
+                <SignUpLink />
             </Grid>
 
             <ResetPasswordModel
@@ -58,7 +58,10 @@ function ResetPassword({ className, resetPassword, sendVerificationEmail, histor
 
     function _onSubmit(userData) {
         setUserData(userData);
-        resetPassword({ userData, model: { setState, setErrorMessage }});
+        resetPassword({ userData, model: { setState, setErrorMessage }})
+            .then(() => {
+                setFormKey(formKey + 1);
+            });
     }
 }
 
