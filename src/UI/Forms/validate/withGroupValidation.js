@@ -79,7 +79,7 @@ function withGroupValidation (WrappedComponent) {
             event.preventDefault();
             const { __isValid } = this.state;
             if (__isValid) {
-                this.props.onSubmit();
+                this.props.onSubmit(event);
             } else {
                 this.setState({
                     __showErrors: true
