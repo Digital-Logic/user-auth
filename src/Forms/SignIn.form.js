@@ -2,6 +2,7 @@ import React, { useReducer } from 'react';
 import Button from '@material-ui/core/Button';
 import { Form, Input, Password, isEmail, minLength, required } from '../UI/Forms';
 import Grid from '@material-ui/core/Grid';
+import { ResetPasswordLink } from '../Routes/ResetPassword.route';
 
 const ACTIONS = Object.freeze({
     EMAIL: 'EMAIL',
@@ -37,7 +38,8 @@ function SignIn({ onSubmit }) {
                 validate={[required(), minLength(7) ]}
                 />
 
-            <Grid container justify="flex-end">
+            <Grid container justify="space-between" alignItems="center">
+                <ResetPasswordLink />
                 <Button variant="outlined" type="submit">Submit</Button>
             </Grid>
         </Form>

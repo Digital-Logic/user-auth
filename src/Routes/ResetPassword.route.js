@@ -73,13 +73,12 @@ function mapDispatch(dispatch) {
 
 function ResetPasswordLink() {
     return (
-        <Typography align="center">Forgot your password?
+        <Typography variant="body2" align="left">Forgot your password? <br />
             <Button
                 to={ROUTES.RESET_PASSWORD}
                 component={Link}
                 color="primary"
             >Reset Password</Button>
-
         </Typography>
     );
 }

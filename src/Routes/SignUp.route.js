@@ -8,6 +8,9 @@ import { STATES, SignUpModel } from '../Models';
 import { authActions } from '../Store';
 import { connect } from 'react-redux';
 import { ROUTES } from '../Routes';
+import { SignInLink } from './SignIn.route';
+import Button from '@material-ui/core/Button';
+import { Link } from 'react-router-dom';
 
 function SignUp({ className, dispatchSignUp, history }) {
 
@@ -31,6 +34,10 @@ function SignUp({ className, dispatchSignUp, history }) {
 
                     </CardContent>
                 </Card>
+            </Grid>
+
+            <Grid item>
+                <SignInLink />
             </Grid>
 
             <SignUpModel
@@ -60,6 +67,18 @@ function SignUp({ className, dispatchSignUp, history }) {
     }
 }
 
+function SignUpLink() {
+    return (
+        <Typography>Don't have an account?
+            <Button
+                color="primary"
+                to={ROUTES.SIGN_UP}
+                component={Link}>Create an account</Button>
+
+        </Typography>
+    );
+}
+
 function mapDispatch(dispatch) {
     return {
         dispatchSignUp: ({ state, setState, setMessage, userData }) =>
@@ -68,3 +87,8 @@ function mapDispatch(dispatch) {
 }
 
 export default connect(null, mapDispatch)(SignUp);
+
+
+export {
+    SignUpLink
+};

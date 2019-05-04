@@ -5,12 +5,12 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import SignInForm from '../Forms/SignIn.form';
 import Button from '@material-ui/core/Button';
-import { ResetPasswordLink } from './ResetPassword.route';
 import { connect } from 'react-redux';
 import { authActions } from '../Store';
 import { STATES, SignInModel } from '../Models';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
+import { SignUpLink } from './SignUp.route';
 
 function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
 
@@ -37,7 +37,7 @@ function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
             </Grid>
 
             <Grid item>
-                <ResetPasswordLink />
+                <SignUpLink />
             </Grid>
 
             <SignInModel
