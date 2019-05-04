@@ -129,6 +129,30 @@ function signOut({ model }) {
     function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE }; }
 }
 
+function sendResetPasswordEmail({ userData, model }) {
+
+    return function _resetPassword(dispatch) {
+
+        dispatch(request());
+        model.setState(MODEL_STATES.LOADING);
+
+        return axios.post('/api/auth/reset-password-request', userData)
+            .then(response => {
+                dispatch(success());
+                model.setState(MODEL_STATES.SUCCESS);
+            })
+            .catch(error => {
+                dispatch(failure(error));
+                model.setState(MODEL_STATES.FAILURE);
+                model.setErrorMessage(typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data));
+            });
+    };
+
+    function request() { return { type: ACTIONS.RESET_PASSWORD_REQUEST }; }
+    function success() { return { type: ACTIONS.RESET_PASSWORD_SUCCESS }; }
+    function failure(error) { return { type: ACTIONS.RESET_PASSWORD_FAILURE, error }; }
+}
+
 function processQueryStringToken({ token, id: userID, model })
 {
     const TOKEN_TYPE = Object.freeze({
@@ -210,6 +234,7 @@ export {
     signUp,
     signIn,
     signOut,
+    sendResetPasswordEmail,
     processQueryStringToken,
     sendEmailVerification
 };

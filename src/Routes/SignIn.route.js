@@ -4,9 +4,13 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import SignInForm from '../Forms/SignIn.form';
+import Button from '@material-ui/core/Button';
+import { ResetPasswordLink } from './ResetPassword.route';
 import { connect } from 'react-redux';
 import { authActions } from '../Store';
 import { STATES, SignInModel } from '../Models';
+import { ROUTES } from '../Routes';
+import { Link } from 'react-router-dom';
 
 function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
 
@@ -32,6 +36,10 @@ function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
                 </Card>
             </Grid>
 
+            <Grid item>
+                <ResetPasswordLink />
+            </Grid>
+
             <SignInModel
                 state={state}
                 setState={setState}
@@ -46,6 +54,7 @@ function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
                                 setFormKey(formKey + 1);
                         });
                 }}
+                sendVerificationEmail={sendVerificationEmail}
                 />
         </Grid>
     );
@@ -65,6 +74,17 @@ function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
     }
 }
 
+function SignInLink() {
+    return (
+        <Typography align="center">Already have an account?
+            <Button
+                color="primary"
+                component={Link}
+                to={ROUTES.SIGN_IN}>Sign in</Button>
+        </Typography>
+    );
+}
+
 function mapDispatch(dispatch) {
     return {
         dispatchSignIn: ({ userData, model }) => dispatch(authActions.signIn({ userData, model })),
@@ -74,3 +94,7 @@ function mapDispatch(dispatch) {
 }
 
 export default connect(null, mapDispatch)(SignIn);
+
+export {
+    SignInLink
+};

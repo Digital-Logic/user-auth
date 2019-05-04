@@ -67,15 +67,8 @@ function App({ classes, isAuthenticated, id, getAuth, signOut, processToken, his
                 <Route exact path={ROUTES.HOME} render={(props) => <Home className={classes.card} {...props} />} />
                 <Route path={ROUTES.PROFILE} render={(props) => <Profile className={classes.card} {...props} />} />
                 <Route path={ROUTES.SIGN_IN} render={(props) => <SignIn className={classes.card} {...props} />} />
-
-                <Route path={ROUTES.SIGN_UP} render={(props) =>
-                    <SignUp
-                        className={classes.card}
-                        {...props} />}
-                        />
-
-                <Route path={ROUTES.RESET_PASSWORD} render={(props) => <ResetPassword className={classes.card} {...props} />} />
-
+                <Route path={ROUTES.SIGN_UP} render={(props) => <SignUp className={classes.card} {...props} />} />
+                <Route path={ROUTES.RESET_PASSWORD} render={(props) => <ResetPassword className={classes.card} {...props} /> } />
                 <Route path="/" render={(props) => <NotFound className={classes.card} {...props} />} />
             </Switch>
 

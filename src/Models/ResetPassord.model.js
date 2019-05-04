@@ -1,57 +1,47 @@
 import React, { Fragment } from 'react';
-import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
 import withModelBase, { CloseButton } from './withModelBase';
 
-function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
+
+function ResetPassword({ state, onClose, errorMessage, onSendVerificationEmail }) {
 
     switch(state) {
+        case STATES.SUCCESS:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Password Reset Email Sent</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
+                    </DialogContent>
+                    <CloseButton onClose={onClose}/>
+                </Fragment>
+            );
         case STATES.FAILURE:
             return (
                 <Fragment>
-                    <DialogTitle align="center">Sign In Failure</DialogTitle>
+                    <DialogTitle align="center">Password Reset Failed</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">{ errorMessage || "Invalid user name or password"}</DialogContentText>
+                        <DialogContentText align="center">{ errorMessage || 'An error occurred' }</DialogContentText>
+                        {
+                            typeof errorMessage === 'string' && errorMessage.includes('activated') ?
+                                <DialogContentText align="center">Please check your email to activate your account
+                                    <Button
+                                        onClick={onSendVerificationEmail}
+                                        color="primary">Resend Verification Email</Button>
+                                </DialogContentText>
+                            : ''
+                        }
                     </DialogContent>
                     <CloseButton onClose={onClose} />
                 </Fragment>
             );
-        case STATES.ACCOUNT_ACTIVATION_REQUIRED:
-            return (
-                <Fragment>
-                    <DialogTitle align="center">Account Activation Required</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText align="center">Your account has not been activated yet.</DialogContentText>
-                        <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
-
-                        <DialogContentText align="center">
-                            <Button
-                                onClick={onSendVerificationEmail}
-                                color="primary">Resend Verification Email</Button>
-                        </DialogContentText>
-
-                    </DialogContent>
-                    <CloseButton onClose={onClose} />
-                </Fragment>
-            );
-
-        case STATES.LOADING:
-            return (
-                <Fragment>
-                    <DialogTitle align="center">Sending Account Activation</DialogTitle>
-                    <DialogContent>
-                        <Progress />
-                    </DialogContent>
-                    <CloseButton onClose={onClose} />
-                </Fragment>
-            );
-
-        case STATES.ACCOUNT_ACTIVATION_SEND:
+            case STATES.ACCOUNT_ACTIVATION_SEND:
             return (
                 <Fragment>
                     <DialogTitle align="center">Account Activation Send</DialogTitle>
@@ -73,25 +63,27 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                 </Fragment>
             );
 
-        default:
-            return (
-                <Fragment>
-                    <DialogTitle align="center">Logging In</DialogTitle>
-                    <DialogContent>
-                        <Progress />
-                    </DialogContent>
-                    <CloseButton onClose={onClose} />
-                </Fragment>
-            );
+       default:
+        return (
+            <Fragment>
+                <DialogTitle align="center">Requesting Password Reset</DialogTitle>
+                <DialogContent>
+                    <Progress />
+                </DialogContent>
+                <CloseButton onClose={onClose} />
+            </Fragment>
+        );
     }
 }
 
-SignIn.propTypes = {
-    state: PropTypes.oneOf(Object.values(STATES)).isRequired
+ResetPassword.propTypes = {
+    state: PropTypes.oneOf(Object.values(STATES)).isRequired,
+    onSendVerificationEmail: PropTypes.func.isRequired,
+    setState: PropTypes.func.isRequired
 };
 
-SignIn.defaultProps = {
+ResetPassword.defaultProps = {
     state: STATES.CLOSED,
 };
 
-export default withModelBase()(SignIn);
+export default withModelBase()(ResetPassword);

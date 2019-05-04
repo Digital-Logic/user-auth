@@ -60,14 +60,15 @@ function withModelBase() {
 }
 
 
-function CloseButton({ onClose, state }) {
+function CloseButton({ onClose, state, children, ...props }) {
     return (
         <DialogActions>
             <Grid container justify="flex-end">
 
             <Button
                 disabled={ state === STATES.LOADING }
-                onClick={onClose}>Close</Button>
+                onClick={onClose}
+                {...props}>{ children || 'Close' }</Button>
 
             </Grid>
         </DialogActions>
