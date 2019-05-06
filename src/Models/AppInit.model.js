@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -8,10 +8,14 @@ import Grid from '@material-ui/core/Grid';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
+import ResetPasswordForm from '../Forms/ResetPassword.form';
 import withModelBase, { CloseButton } from './withModelBase';
 
 
-function AppInitModel({ state, onClose, onLogin }) {
+function AppInitModel({ state, onClose, onLogin, sendEmailVerification, sendResetPassword }) {
+
+    const [userID, setUserID ] = useState();
+
 
     switch(state) {
 
@@ -51,21 +55,49 @@ function AppInitModel({ state, onClose, onLogin }) {
                 </Fragment>
             );
 
-       default:
-        return (
-            <Fragment>
-                <DialogTitle>Loading</DialogTitle>
-                <DialogContent>
-                    <Progress />
-                </DialogContent>
-                <CloseButton onClick={ onClose } state={state}/>
-            </Fragment>
-        );
+        case STATES.RESET_PASSWORD:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Reset Password</DialogTitle>
+                    <DialogContent>
+                        <ResetPasswordForm onClose={ onClose }/>
+                    </DialogContent>
+                </Fragment>
+            );
+
+
+        case STATES.RESET_PASSWORD_TOKEN_INVALID:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Reset Password Error</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>Reset password token has expired.</DialogContentText>
+                        <DialogContentText>
+                            <Button color="primary" onClick={() => {}}>Reset Password</Button>
+                        </DialogContentText>
+                    </DialogContent>
+                    <CloseButton onClick={ onClose } state={state} />
+                </Fragment>
+            );
+
+        default:
+            return (
+                <Fragment>
+                    <DialogTitle>Loading</DialogTitle>
+                    <DialogContent>
+                        <Progress />
+                    </DialogContent>
+                    <CloseButton onClick={ onClose } state={state}/>
+                </Fragment>
+            );
     }
 }
 
 AppInitModel.propTypes = {
     state: PropTypes.oneOf(Object.values(STATES)).isRequired,
+    onLogin: PropTypes.func.isRequired,
+    sendEmailVerification: PropTypes.func.isRequired,
+    sendResetPassword: PropTypes.func.isRequired
 };
 
 AppInitModel.defaultProps = {
