@@ -4,7 +4,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import ResetPasswordForm from '../Forms/ResetPassword.form';
+import SendResetPasswordForm from '../Forms/SendResetPasswordEmail.form';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../Routes';
 import { connect } from 'react-redux';
@@ -27,7 +27,7 @@ function ResetPassword({ className, resetPassword, sendVerificationEmail, histor
             <Grid item className={className}>
                 <Card raised>
                     <CardContent>
-                        <ResetPasswordForm
+                        <SendResetPasswordForm
                             onSubmit={_onSubmit}
                             key={ formKey } />
 
