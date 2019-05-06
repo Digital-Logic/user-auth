@@ -21,6 +21,18 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                     <CloseButton onClose={onClose} />
                 </Fragment>
             );
+
+        case STATES.LOADING:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Sending Account Activation</DialogTitle>
+                    <DialogContent>
+                        <Progress />
+                    </DialogContent>
+                    <CloseButton onClose={onClose} />
+                </Fragment>
+            );
+
         case STATES.ACCOUNT_ACTIVATION_REQUIRED:
             return (
                 <Fragment>
@@ -35,17 +47,6 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                                 color="primary">Resend Verification Email</Button>
                         </DialogContentText>
 
-                    </DialogContent>
-                    <CloseButton onClose={onClose} />
-                </Fragment>
-            );
-
-        case STATES.LOADING:
-            return (
-                <Fragment>
-                    <DialogTitle align="center">Sending Account Activation</DialogTitle>
-                    <DialogContent>
-                        <Progress />
                     </DialogContent>
                     <CloseButton onClose={onClose} />
                 </Fragment>
