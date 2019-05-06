@@ -193,6 +193,18 @@ function processQueryStringToken({ token, id: userID, model })
                     dispatch(failure(error));
                     model.setState(MODEL_STATES.ACCOUNT_ACTIVATION_TOKEN_INVALID);
                 });
+        } else if (type === TOKEN_TYPE.RESET_PASSWORD) {
+            dispatch(request(type));
+
+            return axios.post('/api/auth/validate-token', { token })
+                .then(response => {
+                    dispatch(success());
+                    model.setState(MODEL_STATES.RESET_PASSWORD);
+                })
+                .catch(error => {
+                    dispatch(failure(error));
+                    model.setState(MODEL_STATES.RESET_PASSWORD_TOKEN_INVALID);
+                })
         }
 
     }
