@@ -5,7 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { STATES } from './constants';
-import withModelBase, { CloseButton } from './withModelBase';
+import withModelBase, { CloseButton } from './withModel';
 
 
 function LoadingModel({ state, onClose, content, errorMessage}) {
@@ -25,7 +25,7 @@ function LoadingModel({ state, onClose, content, errorMessage}) {
                 <Fragment>
                     <DialogTitle>{ content[STATES.FAILURE].title || 'Failure'}</DialogTitle>
                     <DialogContent>
-                        <DialogContentText>{ errorMessage || 'An error occurred' }</DialogContentText>
+                        <DialogContentText>{ errorMessage || content[STATES.FAILURE].text || 'An error occurred' }</DialogContentText>
                     </DialogContent>
                 </Fragment>
             );

@@ -6,10 +6,11 @@ import PropTypes from 'prop-types';
 import { ROUTES, Home, Profile, SignIn, SignUp, ResetPassword, NotFound } from './Routes';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import AppBar from './Components/AppBar';
-import { AppInitModel, STATES as MODEL_STATES } from './Models';
+import { AppInitModel, STATES as MODEL_STATES, withModel } from './Models';
 import { connect } from 'react-redux';
 import { authActions } from './Store';
 import queryString from 'query-string';
+
 
 const styles = theme => ({
     root: {
@@ -27,29 +28,40 @@ const styles = theme => ({
 });
 
 
-function App({ classes, isAuthenticated, id, getAuth, signOut, processToken, history, location }) {
-
-    const [ authState, setAuthState ] = useState(MODEL_STATES.CLOSED);
-    const [ modelContent, setModelContent ] = useState();
+function App({ classes, isAuthenticated, userID, createModel, getAuth, signOut, history, location,
+        processToken, sendEmailVerification, sendResetPassword }) {
 
     // Initialize app
     useEffect(() => {
-        // Create loading model
-        setAuthState(MODEL_STATES.LOADING);
         // Process query string tokens
         const params = queryString.parse(location.search);
 
 
-        Promise.all([
-                getAuth(),
-                processToken({ token: params.token, id, model: { state: authState, setState: setAuthState }})
-            ])
-            .then(([ authResponse, { closeModel }={}]) => {
-                history.replace(location.path); // remove query params
+        // Create loading model
+        createModel( model => {
+            model.actions.setState(MODEL_STATES.LOADING);
 
-                if (closeModel)
-                    setAuthState(MODEL_STATES.CLOSED);
+            model.actions.createActions({
+                redirect: path => {
+                    history.push(path); // Redirect to url
+                    model.actions.setState(MODEL_STATES.CLOSED); // close model
+                },
+                onClose: () => {
+                    if (model.state !== MODEL_STATES.LOADING)
+                        model.actions.setState(MODEL_STATES.CLOSED);
+                }
             });
+
+            Promise.all([
+                getAuth(),
+                processToken({ token: params.token, userID, model })
+            ])
+            .then(([authResponse, tokenResponse ])=> {
+               // model.actions.setState(MODEL_STATES.SUCCESS);
+                //model.actions.setState(MODEL_STATES.CLOSED);
+                //console.log(model);
+            });
+        });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[]); // This effect will run on mount only
@@ -58,7 +70,7 @@ function App({ classes, isAuthenticated, id, getAuth, signOut, processToken, his
         <div className={classes.root}>
             <AppBar
                 isAuthenticated={isAuthenticated}
-                signOut={() => signOut({ model: { state: authState, setState: setAuthState, setContent: setModelContent}, history })}
+                signOut={ signOut }
                 />
 
             <div className={classes.spacer} />
@@ -72,12 +84,24 @@ function App({ classes, isAuthenticated, id, getAuth, signOut, processToken, his
                 <Route path="/" render={(props) => <NotFound className={classes.card} {...props} />} />
             </Switch>
 
-            <AppInitModel
-                state={authState}
-                setState={setAuthState}
-                content={modelContent}
-                onLogin={() => history.push(ROUTES.SIGN_IN)}
-                    />
+            {/* <AppInitModel
+                tasks={{
+                    tasks: modelTask,
+                    setTask: setModelTask
+                }}
+
+                actions={{
+                    sendEmailVerification: ( args ) => sendEmailVerification(args),
+                    sendResetPassword: (args) => sendResetPassword(args)
+                }}
+                onLogin={() => history.push(ROUTES.SIGN_IN) }
+                onClose={() => {
+                    if (authState !== MODEL_STATES.LOADING &&
+                            authState !== MODEL_STATES.RESET_PASSWORD) {
+                                setAuthState(MODEL_STATES.CLOSED);
+                            }
+                }}
+                /> */}
 
         </div>
     );
@@ -86,7 +110,7 @@ function App({ classes, isAuthenticated, id, getAuth, signOut, processToken, his
 function mapState(state) {
     return {
         isAuthenticated: state.auth.isAuthenticated,
-        id: state.auth.id
+        userID: state.auth.id
     };
 }
 
@@ -100,8 +124,9 @@ function mapDispatch(dispatch) {
                 .then(() => history.push(ROUTES.HOME));
         },
 
-        processToken: ({ token, model }) =>
-            dispatch(authActions.processQueryStringToken({ token, model }))
+        processToken: (args) => dispatch(authActions.processQueryStringToken(args)),
+        sendResetPassword: (args) => dispatch(authActions.sendResetPasswordEmail(args)),
+        sendEmailVerification: (args) => dispatch(authActions.sendEmailVerification(args))
     };
 }
 
@@ -114,5 +139,6 @@ export default compose(
     applyTheme,
     withStyles(styles),
     withRouter,
+    withModel(AppInitModel),
     connect(mapState, mapDispatch)
 )(App);
