@@ -12,14 +12,28 @@ import compose from 'recompose/compose';
 const styles = theme => ({
     error: {
         color: theme.palette.error.main
-    }
+    },
+    underline: {
+        '&$disabled': {
+            '&:before': {
+                borderBottomStyle: 'solid'
+            }
+        }
+    },
+    root: {
+        '&$disabled': {
+        }
+    },
+    disabled:{}
 });
 
 function InputComponent({label, classes, value, onChange, errorMessage, ...props}) {
     return (
         <FormControl fullWidth className={classes.root}>
             <InputLabel>{ label }</InputLabel>
-            <Input value={value}
+            <Input
+                classes={{ underline: classes.underline, disabled: classes.disabled }}
+                value={value}
                 onChange={onChange}
                 {...props }/>
             <FormHelperText className={classes.error}>{ errorMessage }</FormHelperText>
