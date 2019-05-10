@@ -1,90 +1,85 @@
-import React, { Fragment, useReducer, useEffect } from 'react';
+import React, { Fragment, useReducer } from 'react';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import PropTypes from 'prop-types';
 import { STATES } from './constants';
 
+
+const ACTIONS = Object.freeze({
+    SET_MODEL_STATE: 'SET_MODEL_STATE',
+    CREATE_ACTIONS: 'CREATE_ACTIONS',
+    SET_TITLE: 'SET_TITLE',
+    SET_MESSAGE: 'SET_MESSAGE'
+});
+
 /**
- * ModelActions dispatch creator
+ * Model dispatch creators,
  */
 const modelActions = {
     setState: state => ({ type: ACTIONS.SET_MODEL_STATE, model: { state } }),
     createActions: actions => {
         return ({ type: ACTIONS.CREATE_ACTIONS, actions });
-    }
-};
-
-/**
- *
- */
-const dynamicActions = {
-    // onClose: ({ model, dispatch }) => () => {
-    //     if (model.state !== STATES.LOADING)
-    //         dispatch(modelActions.setState(STATES.CLOSED));
-    // },
-    setState: ({ dispatch }) => state => {
-        dispatch(modelActions.setState(state));
     },
-    createActions: ({ dispatch }) => actions => {
-        dispatch(modelActions.createActions(actions))
-    }
-}
+    setTitle: (titles) => {
+        if (typeof titles !== 'object' && // validate that the key passed is a valid Model STATE, or throw error
+            !Object.keys(titles).reduce( (isValid, key) => isValid && STATES[key] !== 'undefined', true))
+                throw new TypeError(`Title key ${ Object.keys(titles).filter(key => STATES[key] === 'undefined') } is not a valid Model State.`);
 
-const initialState = {
-    state: STATES.CLOSED,
-    displayState: STATES.CLOSED,
-    actions: {
+        return {
+          type: ACTIONS.SET_TITLE, titles
+        }
+    },
+    setMessage: (messages) => {
+        if (typeof titles !== 'object' && // validate that the key passed is a valid Model STATE, or throw error
+            !Object.keys(messages).reduce( (isValid, key) => isValid && STATES[key] !== 'undefined', true))
+                throw new TypeError(`Message key ${ Object.keys(messages).filter(key => STATES[key] === 'undefined') } is not a valid Model State.`);
+        return {
+            type: ACTIONS.SET_MESSAGE, messages
+        };
     }
 };
-
-const ACTIONS = Object.freeze({
-    SET_MODEL_STATE: 'SET_MODEL_STATE',
-    CREATE_ACTIONS: 'CREATE_ACTIONS'
-});
 
 
 function withModel(Model) {
     function _withModel(WrappedComponent) {
         function WithModel( props) {
 
-            const [ model, dispatch ] = useReducer(reducer, initialState);
-
-            const actions = {
-                ...mapActions({ model, dynamicActions, dispatch }),
-                ...model.actions };
-
+            const [ model, dispatch ] = useReducer(reducer, {
+                    state: STATES.CLOSED,
+                    displayState: STATES.CLOSED,
+                    actions: {
+                        onClose: (model) => {
+                            if (model.state !== STATES.LOADING && model.state !== STATES.SIGN_OUT && model.state !== STATES.CLOSED )
+                                dispatch(modelActions.setState(STATES.CLOSED));
+                        },
+                        setState: state => dispatch(modelActions.setState(state)),
+                        createActions: actions => dispatch(modelActions.createActions(actions)),
+                        setTitle: titles => dispatch(modelActions.setTitle(titles)),
+                        setMessage: messages => dispatch(modelActions.setMessage(messages))
+                    }
+                });
 
             return (
                 <Fragment>
-                    <WrappedComponent createModel={createModel} {...props}/>
+                    <WrappedComponent
+                        model={model}
+                        {...props} />
 
                     <Dialog
                         open={model.state !== STATES.CLOSED}
-                        onClose={ actions.onClose }>
+                        onClose={ () => model.actions.onClose(model) }>
 
                         <Model
-                            state={model.displayState}
-                            setState={ modelState => dispatch({ type: ACTIONS.SET_MODEL_STATE, model: { modelState } }) }
-                            onClose={ actions.onClose }
-                            actions={actions}
+                            model={ model }
+                            state={ model.displayState }
+                            actions={ model.actions }
+                            setState={ model.actions.setState }
+                            onClose={ model.actions.onClose }
                             />
 
                     </Dialog>
                 </Fragment>
             );
 
-
-            function createModel(task) {
-                task({
-                        state: model.state,
-                        displayState: model.displayState,
-                        actions
-                    });
-            }
-
-            function reducer(state, { type, model, actions }) {
+            function reducer(state, { type, model, actions, messages, titles }) {
                 switch(type) {
                     case ACTIONS.SET_MODEL_STATE:
                         return {
@@ -100,58 +95,29 @@ function withModel(Model) {
                                 ...actions
                             }
                         };
+                    case ACTIONS.SET_MESSAGE:
+                        return {
+                            ...state,
+                            messages: {
+                                ...messages
+                            }
+                        };
+                    case ACTIONS.SET_TITLE:
+                        return {
+                            ...state,
+                            titles: {
+                                ...titles
+                            }
+                        };
                     default:
                         return state;
                 }
             }
         }
 
-        // WithModelBase.propTypes = {
-        //     state: PropTypes.oneOf(Object.values(STATES)).isRequired,
-        //     setState: PropTypes.func.isRequired
-        // };
-
-        // WithModelBase.defaultProps = {
-        //     state: STATES.CLOSED
-        // };
-
         return WithModel;
     }
     return _withModel;
 }
 
-// Create a closure around the actions
-function mapActions({ model, dynamicActions, dispatch }) {
-    return Object.entries(dynamicActions).reduce( (dynamicActions, [key, func]) => {
-
-        dynamicActions[key] = func({  // execute the function, creating the data bindings
-            model: { state: model.state, displayState: model.displayState },
-            dispatch
-        });
-
-        return dynamicActions;
-    },{});
-}
-
-function CloseButton({ onClose, state, children, ...props }) {
-    return (
-        <DialogActions>
-            <Grid container justify="flex-end">
-
-            <Button
-                disabled={ state === STATES.LOADING }
-                onClick={onClose}
-                {...props}>{ children || 'Close' }</Button>
-
-            </Grid>
-        </DialogActions>
-    );
-}
-
-
 export default withModel;
-
-
-export {
-    CloseButton
-};
