@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import compose from 'recompose/compose';
 import applyTheme from './applyTheme';
 import { withStyles } from '@material-ui/core/styles';
@@ -28,8 +28,8 @@ const styles = theme => ({
 });
 
 
-function App({ classes, isAuthenticated, userID, model, getAuth,
-        signOut, signUp, resetPassword, history, location, processToken }) {
+function App({ classes, isAuthenticated, userID, model, getAuth, processToken,
+        signOut, signUp, sendResetPassword, history, location }) {
 
     // Initialize app
     useEffect(() => {
@@ -39,12 +39,18 @@ function App({ classes, isAuthenticated, userID, model, getAuth,
         model.actions.createActions({
             redirect: path => {
                 history.push(path); // Redirect to url
-                model.actions.setState(MODEL_STATES.CLOSED); // close model
             },
+            // Override onClose action so the user does not accidentally close model during
+            // password reset,
             onClose: model => {
                 if (model.state !== MODEL_STATES.LOADING &&
-                    model.state !== MODEL_STATES.SIGN_OUT )
-                        model.actions.setState(MODEL_STATES.CLOSED);
+                        model.state !== MODEL_STATES.SIGN_OUT &&
+                        model.state !== MODEL_STATES.RESET_PASSWORD &&
+                        model.state !== MODEL_STATES.CLOSED )
+                    model.actions.setState(MODEL_STATES.CLOSED);
+            },
+            onCancel: model => {
+                model.actions.setState(MODEL_STATES.CLOSED);
             }
         });
 
@@ -57,6 +63,9 @@ function App({ classes, isAuthenticated, userID, model, getAuth,
         .then(([authResponse, tokenResponse={}])=> {
             if ( tokenResponse.closeModel )
                 model.actions.setState(MODEL_STATES.CLOSED);
+
+            // Clear query strings
+            history.replace(location.path);
         });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +96,7 @@ function App({ classes, isAuthenticated, userID, model, getAuth,
 
                 <Route path={ROUTES.RESET_PASSWORD} render={(props) =>
                     <ResetPassword className={classes.card} {...props}
-                        resetPassword={resetPassword} /> } />
+                        sendResetPassword={sendResetPassword} /> } />
 
                 <Route path="/" render={(props) =>
                     <NotFound className={classes.card} {...props} />} />
@@ -108,7 +117,7 @@ function mapDispatch(dispatch) {
         getAuth: () => dispatch(authActions.getAuth()),
         signOut: (...args) => dispatch(authActions.signOut(...args)),
         signUp: (...args) => dispatch(authActions.signUp(...args)),
-        resetPassword: (...args) => dispatch(authActions.sendResetPasswordEmail(...args)),
+        sendResetPassword: (...args) => dispatch(authActions.sendResetPasswordEmail(...args)),
         processToken: (args) => dispatch(authActions.processQueryStringToken(args))
     };
 }

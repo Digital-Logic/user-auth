@@ -11,18 +11,18 @@ import { STATES, CloseButton } from './constants';
 function ResetPassword({ model, state }) {
 
     switch(state) {
-        case STATES.RESET_PASSWORD_SUCCESS:
+        case STATES.SEND_RESET_PASSWORD_SUCCESS:
         case STATES.SUCCESS:
             return (
                 <Fragment>
-                    <DialogTitle align="center">Password Reset Email Sent</DialogTitle>
+                    <DialogTitle align="center">Password Reset eMail Sent</DialogTitle>
                     <DialogContent>
                         <DialogContentText align="center">Please check your email to reset your account.</DialogContentText>
                     </DialogContent>
                     <CloseButton model={model}/>
                 </Fragment>
             );
-        case STATES.RESET_PASSWORD_FAILURE:
+        case STATES.SEND_RESET_PASSWORD_FAILURE:
             return (
                 <Fragment>
                     <DialogTitle align="center">Password Reset Failed</DialogTitle>

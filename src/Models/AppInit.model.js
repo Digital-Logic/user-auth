@@ -1,10 +1,8 @@
 import React, { Fragment } from 'react';
 import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { ROUTES } from '../Routes';
@@ -68,7 +66,9 @@ function AppInitModel({ model, state }) {
                 <Fragment>
                     <DialogTitle align="center">Reset Password</DialogTitle>
                     <DialogContent>
-                        <ResetPasswordForm onClose={ model.actions.onClose } />
+                        <ResetPasswordForm
+                            onCancel={ () => model.actions.onCancel(model) }
+                            onSubmit={ (pwd) => model.actions.onResetPassword({ model, pwd }) }/>
                     </DialogContent>
                 </Fragment>
             );
@@ -81,18 +81,30 @@ function AppInitModel({ model, state }) {
                     <DialogContent>
                         <DialogContentText align="center">Reset password token has expired.</DialogContentText>
                         <DialogContentText align="center">
-                            <Button color="primary" onClick={ model.actions.sendResetPassword }>Reset Password</Button>
+                            <Button color="primary" onClick={ model.actions.sendResetPassword }>Send Reset Password</Button>
                         </DialogContentText>
                     </DialogContent>
                     <CloseButton model={model}/>
                 </Fragment>
             );
-        case STATES.RESET_PASSWORD_SUCCESS:
+        case STATES.SEND_RESET_PASSWORD_SUCCESS:
             return (
                 <Fragment>
                     <DialogTitle align="center">Password Reset Email Sent</DialogTitle>
                     <DialogContent>
                         <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
+                    </DialogContent>
+                    <CloseButton model={model}/>
+                </Fragment>
+            );
+
+        case STATES.RESET_PASSWORD_SUCCESS:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Password Reset</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">Your password has been successfully reset.</DialogContentText>
+                        <DialogContentText align="center">Please login with your new password.</DialogContentText>
                     </DialogContent>
                     <CloseButton model={model}/>
                 </Fragment>

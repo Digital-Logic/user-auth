@@ -14,7 +14,7 @@ const ACTIONS = Object.freeze({
  * Model dispatch creators,
  */
 const modelActions = {
-    setState: state => ({ type: ACTIONS.SET_MODEL_STATE, model: { state } }),
+    setState: state => ({ type: ACTIONS.SET_MODEL_STATE, modelState: state }),
     createActions: actions => {
         return ({ type: ACTIONS.CREATE_ACTIONS, actions });
     },
@@ -79,13 +79,13 @@ function withModel(Model) {
                 </Fragment>
             );
 
-            function reducer(state, { type, model, actions, messages, titles }) {
+            function reducer(state, { type, modelState, actions, messages, titles }) {
                 switch(type) {
                     case ACTIONS.SET_MODEL_STATE:
                         return {
                             ...state,
-                            ...model,
-                            displayState: model.state === STATES.CLOSED ? state.displayState : model.state
+                            state: modelState,
+                            displayState: modelState === STATES.CLOSED ? state.displayState : modelState
                         };
                     case ACTIONS.CREATE_ACTIONS:
                         return {

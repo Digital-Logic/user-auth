@@ -127,6 +127,28 @@ function signOut({ model }) {
     function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE }; }
 }
 
+function resetPassword({ token, pwd, model }) {
+    return function _resetPassword(dispatch) {
+        dispatch(request());
+        model.actions.setState(MODEL_STATES.LOADING);
+
+        return axios.post('/api/auth/reset-password', { token, pwd })
+            .then(response => {
+                dispatch(success());
+                model.actions.setState(MODEL_STATES.RESET_PASSWORD_SUCCESS);
+                model.actions.redirect(ROUTES.SIGN_IN);
+            })
+            .catch(error => {
+                dispatch(failure(error));
+                model.actions.setState(MODEL_STATES.RESET_PASSWORD_FAILURE);
+            });
+    }
+
+    function request() { return { type: ACTIONS.RESET_PASSWORD_REQUEST }; }
+    function success() { return { type: ACTIONS.RESET_PASSWORD_SUCCESS }; }
+    function failure(error) { return { type: ACTIONS.RESET_PASSWORD_FAILURE, error }; }
+}
+
 function sendResetPasswordEmail({ userData, model }) {
 
     return function _resetPassword(dispatch) {
@@ -137,7 +159,7 @@ function sendResetPasswordEmail({ userData, model }) {
         return axios.post('/api/auth/reset-password-request', userData)
             .then(response => {
                 dispatch(success());
-                model.actions.setState(MODEL_STATES.RESET_PASSWORD_SUCCESS);
+                model.actions.setState(MODEL_STATES.SEND_RESET_PASSWORD_SUCCESS);
             })
             .catch(error => {
                 dispatch(failure(error));
@@ -156,9 +178,9 @@ function sendResetPasswordEmail({ userData, model }) {
             });
     };
 
-    function request() { return { type: ACTIONS.RESET_PASSWORD_REQUEST }; }
-    function success() { return { type: ACTIONS.RESET_PASSWORD_SUCCESS }; }
-    function failure(error) { return { type: ACTIONS.RESET_PASSWORD_FAILURE, error }; }
+    function request() { return { type: ACTIONS.SEND_RESET_PASSWORD_REQUEST }; }
+    function success() { return { type: ACTIONS.SEND_RESET_PASSWORD_SUCCESS }; }
+    function failure(error) { return { type: ACTIONS.SEND_RESET_PASSWORD_FAILURE, error }; }
 }
 
 function processQueryStringToken({ token, userID, model })
@@ -216,6 +238,13 @@ function processQueryStringToken({ token, userID, model })
             return axios.post('/api/auth/validate-token', { token })
                 .then(response => {
                     dispatch(success());
+
+                    model.actions.createActions({
+                        onResetPassword: ({ model, pwd }) => {
+                            dispatch(resetPassword({ model, token, pwd }))
+                        }
+                    });
+
                     model.actions.setState(MODEL_STATES.RESET_PASSWORD);
                 })
                 .catch(error => {
@@ -226,7 +255,7 @@ function processQueryStringToken({ token, userID, model })
                         }
                     });
                     model.actions.setState(MODEL_STATES.RESET_PASSWORD_TOKEN_INVALID);
-                })
+                });
         }
     }
 
@@ -267,6 +296,7 @@ export {
     signUp,
     signIn,
     signOut,
+    resetPassword,
     sendResetPasswordEmail,
     processQueryStringToken,
     sendEmailVerification
