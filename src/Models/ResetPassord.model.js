@@ -5,40 +5,40 @@ import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
-import { STATES } from './constants';
-import withModelBase, { CloseButton } from './withModelBase';
+import { STATES, CloseButton } from './constants';
 
 
-function ResetPassword({ state, onClose, errorMessage, onSendVerificationEmail }) {
+function ResetPassword({ model, state }) {
 
     switch(state) {
+        case STATES.RESET_PASSWORD_SUCCESS:
         case STATES.SUCCESS:
             return (
                 <Fragment>
                     <DialogTitle align="center">Password Reset Email Sent</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
+                        <DialogContentText align="center">Please check your email to reset your account.</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose}/>
+                    <CloseButton model={model}/>
                 </Fragment>
             );
-        case STATES.FAILURE:
+        case STATES.RESET_PASSWORD_FAILURE:
             return (
                 <Fragment>
                     <DialogTitle align="center">Password Reset Failed</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">{ errorMessage || 'An error occurred' }</DialogContentText>
+                        <DialogContentText align="center">{ model.messages[STATES.RESET_PASSWORD_FAILURE] || 'An error occurred' }</DialogContentText>
                         {
-                            typeof errorMessage === 'string' && errorMessage.includes('activated') ?
+                            model.messages[STATES.RESET_PASSWORD_FAILURE].includes('activated') ?
                                 <DialogContentText align="center">Please check your email to activate your account
                                     <Button
-                                        onClick={onSendVerificationEmail}
+                                        onClick={model.actions.onSendEmailVerification }
                                         color="primary">Resend Verification Email</Button>
                                 </DialogContentText>
                             : ''
                         }
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
             case STATES.ACCOUNT_ACTIVATION_SEND:
@@ -48,7 +48,7 @@ function ResetPassword({ state, onClose, errorMessage, onSendVerificationEmail }
                     <DialogContent>
                         <DialogContentText align="center">Please check your email for an an activation link.</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
 
@@ -59,7 +59,7 @@ function ResetPassword({ state, onClose, errorMessage, onSendVerificationEmail }
                     <DialogContent>
                         <DialogContentText align="center">A failure occurred while sending a new activation email.</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
 
@@ -70,20 +70,15 @@ function ResetPassword({ state, onClose, errorMessage, onSendVerificationEmail }
                 <DialogContent>
                     <Progress />
                 </DialogContent>
-                <CloseButton onClose={onClose} />
+                <CloseButton model={model} />
             </Fragment>
         );
     }
 }
 
 ResetPassword.propTypes = {
-    state: PropTypes.oneOf(Object.values(STATES)).isRequired,
-    onSendVerificationEmail: PropTypes.func.isRequired,
-    setState: PropTypes.func.isRequired
+    model: PropTypes.object.isRequired,
+    state: PropTypes.oneOf(Object.values(STATES)).isRequired
 };
 
-ResetPassword.defaultProps = {
-    state: STATES.CLOSED,
-};
-
-export default withModelBase()(ResetPassword);
+export default ResetPassword;

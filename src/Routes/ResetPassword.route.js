@@ -7,17 +7,13 @@ import Grid from '@material-ui/core/Grid';
 import SendResetPasswordForm from '../Forms/SendResetPasswordEmail.form';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../Routes';
-import { connect } from 'react-redux';
-import { authActions } from '../Store';
-import { STATES as MODEL_STATES, ResetPasswordModel } from '../Models'
+import { ResetPasswordModel, withModel } from '../Models'
 import { SignUpLink } from './SignUp.route'
+import compose from 'recompose/compose';
 
-function ResetPassword({ className, resetPassword, sendVerificationEmail, history }) {
+function ResetPassword({ model, className, resetPassword, history }) {
 
     const [formKey, setFormKey ] = useState(1);
-    const [ state, setState ] = useState(MODEL_STATES.CLOSED);
-    const [ errorMessage, setErrorMessage ] = useState();
-    const [ userData, setUserData ] = useState();
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -38,7 +34,7 @@ function ResetPassword({ className, resetPassword, sendVerificationEmail, histor
                 <SignUpLink />
             </Grid>
 
-            <ResetPasswordModel
+            {/* <ResetPasswordModel
                 state={state}
                 setState={setState}
                 errorMessage={errorMessage}
@@ -52,26 +48,24 @@ function ResetPassword({ className, resetPassword, sendVerificationEmail, histor
                                 setFormKey(formKey + 1);
                         });
                 }}
-                />
+                /> */}
         </Grid>
     );
 
     function _onSubmit(userData) {
-        setUserData(userData);
-        resetPassword({ userData, model: { setState, setErrorMessage }})
+        resetPassword({ userData, model })
             .then(() => {
                 setFormKey(formKey + 1);
             });
+
+        // setUserData(userData);
+        // resetPassword({ userData, model: { setState, setErrorMessage }})
+        //     .then(() => {
+        //         setFormKey(formKey + 1);
+        //     });
     }
 }
 
-function mapDispatch(dispatch) {
-    return {
-        resetPassword: ({userData, model}) => dispatch(authActions.sendResetPasswordEmail({ userData, model })),
-        sendVerificationEmail: ({ userData, model }) =>
-            dispatch(authActions.sendEmailVerification({ userData, model }))
-    };
-}
 
 
 function ResetPasswordLink() {
@@ -86,9 +80,8 @@ function ResetPasswordLink() {
     );
 }
 
-export default connect(
-    null,
-    mapDispatch
+export default compose(
+    withModel( ResetPasswordModel )
 )(ResetPassword);
 
 export {

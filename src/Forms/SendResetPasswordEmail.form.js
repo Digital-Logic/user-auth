@@ -11,6 +11,7 @@ function SendResetPasswordEmail({ onSubmit }) {
         <Form onSubmit={_onSubmit}>
             <Input
                 label="eMail Address"
+                name="email"
                 value={email}
                 onChange={onChange}
                 validate={[required(), isEmail()]}

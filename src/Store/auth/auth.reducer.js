@@ -32,6 +32,7 @@ const initialState = {
 
 function reducer(state=initialState, { type, user }) {
     switch(type) {
+        case ACTIONS.SIGN_OUT_REQUEST:
         case ACTIONS.GET_AUTH_REQUEST:
             return {
                 ...state,

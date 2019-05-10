@@ -4,18 +4,15 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import SignUpForm from '../Forms/SignUp.form';
-import { STATES, SignUpModel } from '../Models';
-import { authActions } from '../Store';
-import { connect } from 'react-redux';
+import { SignUpModel, withModel } from '../Models';
 import { ROUTES } from '../Routes';
 import { SignInLink } from './SignIn.route';
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
+import compose from 'recompose/compose';
 
-function SignUp({ className, dispatchSignUp, history }) {
+function SignUp({ className, signUp, model, history }) {
 
-    const [ state, setState ] = useState(STATES.CLOSED);
-    const [ errorMessage, setErrorMessage ] = useState('');
     const [ formKey, setFormKey ] = useState(1);
 
     return (
@@ -40,27 +37,17 @@ function SignUp({ className, dispatchSignUp, history }) {
                 <SignInLink />
             </Grid>
 
-            <SignUpModel
-                state={state}
-                setState={setState}
-                errorMessage={errorMessage}
-                onClose={() => {
-                    if (state !== STATES.LOADING) {
-                        if (state === STATES.SUCCESS)
-                            history.push(ROUTES.HOME);
-                        else {
-                            setState(STATES.CLOSED);
-                        }
-                    }
-                }}
-                />
-
         </Grid>
     );
 
     function onSubmit(userData) {
-        dispatchSignUp({ state, setState, setErrorMessage, userData })
-            .then(({ clearForm }={}) => {
+        // Create a redirect action, so the model can redirect the user.
+        model.actions.createActions({
+            onRedirect: path => history.push(path)
+        });
+
+        signUp({ userData, model })
+            .then(({clearForm}={}) => {
                 if (clearForm)
                     setFormKey(formKey + 1);
             });
@@ -79,14 +66,9 @@ function SignUpLink() {
     );
 }
 
-function mapDispatch(dispatch) {
-    return {
-        dispatchSignUp: ({ state, setState, setMessage, userData }) =>
-            dispatch(authActions.signUp({ model: { state, setState, setMessage }, userData }))
-    }
-}
-
-export default connect(null, mapDispatch)(SignUp);
+export default compose(
+    withModel(SignUpModel)
+)(SignUp);
 
 
 export {

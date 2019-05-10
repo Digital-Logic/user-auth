@@ -6,7 +6,6 @@ import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import Button from '@material-ui/core/Button';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../Routes';
 

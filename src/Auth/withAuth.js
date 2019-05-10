@@ -41,6 +41,7 @@ function withAuth(permissions) {
                 };
             }
         }
+
         return compose(
             connect(WithAuth.mapState)
         )(WithAuth);

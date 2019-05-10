@@ -28,39 +28,35 @@ const styles = theme => ({
 });
 
 
-function App({ classes, isAuthenticated, userID, createModel, getAuth, signOut, history, location,
-        processToken, sendEmailVerification, sendResetPassword }) {
+function App({ classes, isAuthenticated, userID, model, getAuth,
+        signOut, signUp, resetPassword, history, location, processToken }) {
 
     // Initialize app
     useEffect(() => {
         // Process query string tokens
         const params = queryString.parse(location.search);
 
-
-        // Create loading model
-        createModel( model => {
-            model.actions.setState(MODEL_STATES.LOADING);
-
-            model.actions.createActions({
-                redirect: path => {
-                    history.push(path); // Redirect to url
-                    model.actions.setState(MODEL_STATES.CLOSED); // close model
-                },
-                onClose: () => {
-                    if (model.state !== MODEL_STATES.LOADING)
+        model.actions.createActions({
+            redirect: path => {
+                history.push(path); // Redirect to url
+                model.actions.setState(MODEL_STATES.CLOSED); // close model
+            },
+            onClose: model => {
+                if (model.state !== MODEL_STATES.LOADING &&
+                    model.state !== MODEL_STATES.SIGN_OUT )
                         model.actions.setState(MODEL_STATES.CLOSED);
-                }
-            });
+            }
+        });
 
-            Promise.all([
-                getAuth(),
-                processToken({ token: params.token, userID, model })
-            ])
-            .then(([authResponse, tokenResponse ])=> {
-               // model.actions.setState(MODEL_STATES.SUCCESS);
-                //model.actions.setState(MODEL_STATES.CLOSED);
-                //console.log(model);
-            });
+        model.actions.setState(MODEL_STATES.LOADING);
+
+        Promise.all([
+            getAuth(),
+            processToken({ token: params.token, userID, model })
+        ])
+        .then(([authResponse, tokenResponse={}])=> {
+            if ( tokenResponse.closeModel )
+                model.actions.setState(MODEL_STATES.CLOSED);
         });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,39 +66,32 @@ function App({ classes, isAuthenticated, userID, createModel, getAuth, signOut, 
         <div className={classes.root}>
             <AppBar
                 isAuthenticated={isAuthenticated}
-                signOut={ signOut }
+                signOut={ () => signOut({ model }) }
                 />
 
             <div className={classes.spacer} />
 
             <Switch>
-                <Route exact path={ROUTES.HOME} render={(props) => <Home className={classes.card} {...props} />} />
-                <Route path={ROUTES.PROFILE} render={(props) => <Profile className={classes.card} {...props} />} />
-                <Route path={ROUTES.SIGN_IN} render={(props) => <SignIn className={classes.card} {...props} />} />
-                <Route path={ROUTES.SIGN_UP} render={(props) => <SignUp className={classes.card} {...props} />} />
-                <Route path={ROUTES.RESET_PASSWORD} render={(props) => <ResetPassword className={classes.card} {...props} /> } />
-                <Route path="/" render={(props) => <NotFound className={classes.card} {...props} />} />
+                <Route exact path={ROUTES.HOME} render={(props) =>
+                    <Home className={classes.card} {...props} />} />
+
+                <Route path={ROUTES.PROFILE} render={(props) =>
+                    <Profile className={classes.card} {...props} />} />
+
+                <Route path={ROUTES.SIGN_IN} render={(props) =>
+                    <SignIn className={classes.card} {...props} />} />
+
+                <Route path={ROUTES.SIGN_UP} render={(props) =>
+                    <SignUp className={classes.card}
+                        signUp={signUp} {...props} />} />
+
+                <Route path={ROUTES.RESET_PASSWORD} render={(props) =>
+                    <ResetPassword className={classes.card} {...props}
+                        resetPassword={resetPassword} /> } />
+
+                <Route path="/" render={(props) =>
+                    <NotFound className={classes.card} {...props} />} />
             </Switch>
-
-            {/* <AppInitModel
-                tasks={{
-                    tasks: modelTask,
-                    setTask: setModelTask
-                }}
-
-                actions={{
-                    sendEmailVerification: ( args ) => sendEmailVerification(args),
-                    sendResetPassword: (args) => sendResetPassword(args)
-                }}
-                onLogin={() => history.push(ROUTES.SIGN_IN) }
-                onClose={() => {
-                    if (authState !== MODEL_STATES.LOADING &&
-                            authState !== MODEL_STATES.RESET_PASSWORD) {
-                                setAuthState(MODEL_STATES.CLOSED);
-                            }
-                }}
-                /> */}
-
         </div>
     );
 }
@@ -117,16 +106,10 @@ function mapState(state) {
 function mapDispatch(dispatch) {
     return {
         getAuth: () => dispatch(authActions.getAuth()),
-
-        signOut: ({ model, history }) => {
-            dispatch(authActions.signOut({ model }))
-                // Redirect to home page on log out.
-                .then(() => history.push(ROUTES.HOME));
-        },
-
-        processToken: (args) => dispatch(authActions.processQueryStringToken(args)),
-        sendResetPassword: (args) => dispatch(authActions.sendResetPasswordEmail(args)),
-        sendEmailVerification: (args) => dispatch(authActions.sendEmailVerification(args))
+        signOut: (...args) => dispatch(authActions.signOut(...args)),
+        signUp: (...args) => dispatch(authActions.signUp(...args)),
+        resetPassword: (...args) => dispatch(authActions.sendResetPasswordEmail(...args)),
+        processToken: (args) => dispatch(authActions.processQueryStringToken(args))
     };
 }
 

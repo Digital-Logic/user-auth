@@ -7,17 +7,17 @@ import SignInForm from '../Forms/SignIn.form';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { authActions } from '../Store';
-import { STATES, SignInModel } from '../Models';
+import { STATES as MODEL_STATES, SignInModel, withModel } from '../Models';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 import { SignUpLink } from './SignUp.route';
+import compose from 'recompose/compose';
 
-function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
+function SignIn({ className, model, signInAction, sendVerificationEmail, history }) {
 
     const [formKey, setFormKey] = useState(1);
-    const [state, setState] = useState(STATES.CLOSED);
     const [errorMessage, setErrorMessage] = useState();
-    const [userData, setUserData] = useState();
+
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -40,7 +40,7 @@ function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
                 <SignUpLink />
             </Grid>
 
-            <SignInModel
+            {/* <SignInModel
                 state={state}
                 setState={setState}
                 errorMessage={errorMessage}
@@ -55,22 +55,32 @@ function SignIn({ className, dispatchSignIn, sendVerificationEmail, history }) {
                         });
                 }}
                 sendVerificationEmail={sendVerificationEmail}
-                />
+                /> */}
         </Grid>
     );
 
     function onSubmit(userData) {
 
-        setUserData(userData);
+        // Create custom actions that the model can use
+        model.actions.createActions({
+            sendVerificationEmail: () => {
+                sendVerificationEmail({ userData, model})
+                    .then(({ clearForm }={}) => {
+                        if (clearForm)
+                            setFormKey(formKey + 1);
+                    });
+            }
+        });
 
-        dispatchSignIn({ userData, model: { state, setState, setErrorMessage} })
-            .then(({ clearForm, redirect }={}) => {
-                if(redirect)
+        // Try to sign the user in.
+        signInAction({ userData, model })
+            .then(({clearForm, redirect}={}) => {
+                if (redirect)
                     history.push(redirect);
-
                 if (clearForm)
                     setFormKey(formKey + 1);
             });
+
     }
 }
 
@@ -87,13 +97,15 @@ function SignInLink() {
 
 function mapDispatch(dispatch) {
     return {
-        dispatchSignIn: ({ userData, model }) => dispatch(authActions.signIn({ userData, model })),
-        sendVerificationEmail: ({ userData, model }) =>
-                dispatch(authActions.sendEmailVerification({ userData, model }))
+        signInAction: (...args) => dispatch(authActions.signIn(...args)),
+        sendVerificationEmail: (...args) => dispatch(authActions.sendEmailVerification(...args))
     };
 }
 
-export default connect(null, mapDispatch)(SignIn);
+export default compose(
+    connect(null, mapDispatch),
+    withModel(SignInModel)
+)(SignIn);
 
 export {
     SignInLink

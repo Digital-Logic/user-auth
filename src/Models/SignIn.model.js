@@ -5,10 +5,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
-import { STATES } from './constants';
-import withModelBase, { CloseButton } from './withModelBase';
+import { STATES, CloseButton } from './constants';
 
-function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
+function SignIn({ model, state, errorMessage }) {
 
     switch(state) {
         case STATES.FAILURE:
@@ -18,7 +17,7 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                     <DialogContent>
                         <DialogContentText align="center">{ errorMessage || "Invalid user name or password"}</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
 
@@ -29,7 +28,7 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                     <DialogContent>
                         <Progress />
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model}/>
                 </Fragment>
             );
 
@@ -43,12 +42,12 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
 
                         <DialogContentText align="center">
                             <Button
-                                onClick={onSendVerificationEmail}
+                                onClick={ model.actions.sendVerificationEmail }
                                 color="primary">Resend Verification Email</Button>
                         </DialogContentText>
 
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={ model }/>
                 </Fragment>
             );
 
@@ -59,7 +58,7 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                     <DialogContent>
                         <DialogContentText align="center">Please check your email for an an activation link.</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
 
@@ -70,7 +69,7 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                     <DialogContent>
                         <DialogContentText align="center">A failure occurred while sending a new activation email.</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
 
@@ -81,7 +80,7 @@ function SignIn({ state, onClose, errorMessage, onSendVerificationEmail }) {
                     <DialogContent>
                         <Progress />
                     </DialogContent>
-                    <CloseButton onClose={onClose} />
+                    <CloseButton model={model} />
                 </Fragment>
             );
     }
@@ -95,4 +94,4 @@ SignIn.defaultProps = {
     state: STATES.CLOSED,
 };
 
-export default withModelBase()(SignIn);
+export default SignIn;

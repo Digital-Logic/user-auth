@@ -4,8 +4,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
-import { STATES } from './constants';
-import withModelBase, { CloseButton } from './withModel';
+import { STATES, CloseButton } from './constants';
+import withModelBase from './withModel';
 
 
 function LoadingModel({ state, onClose, content, errorMessage}) {

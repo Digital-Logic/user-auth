@@ -5,12 +5,11 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
-import { STATES } from './constants';
-import withModelBase, { CloseButton } from './withModelBase';
+import { STATES, CloseButton } from './constants';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 
-function SignUp({ state, onClose, errorMessage }) {
+function SignUp({ model, state }) {
 
     switch(state) {
         case STATES.SUCCESS:
@@ -21,7 +20,7 @@ function SignUp({ state, onClose, errorMessage }) {
                         <DialogContentText align="center">Your account has been created.</DialogContentText>
                         <DialogContentText align="center">Please check your email to activate your account.</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose}/>
+                    <CloseButton model={model}/>
                 </Fragment>
             );
         case STATES.FAILURE:
@@ -29,9 +28,9 @@ function SignUp({ state, onClose, errorMessage }) {
                 <Fragment>
                     <DialogTitle align="center">Failure</DialogTitle>
                     <DialogContent>
-                        <DialogContentText align="center">{ errorMessage || "Unknown Error Occurred"}</DialogContentText>
+                        <DialogContentText align="center">{ "Unknown Error Occurred" }</DialogContentText>
                     </DialogContent>
-                    <CloseButton onClose={onClose}/>
+                    <CloseButton model={model}/>
                 </Fragment>
             );
 
@@ -47,7 +46,7 @@ function SignUp({ state, onClose, errorMessage }) {
                         </DialogContentText>
 
                     </DialogContent>
-                    <CloseButton onClose={onClose}/>
+                    <CloseButton model={model}/>
                 </Fragment>
             );
 
@@ -58,7 +57,7 @@ function SignUp({ state, onClose, errorMessage }) {
                     <DialogContent>
                         <Progress />
                     </DialogContent>
-                    <CloseButton onClose={onClose}/>
+                    <CloseButton model={model}/>
                 </Fragment>
             );
     }
@@ -73,4 +72,4 @@ SignUp.defaultProps = {
     state: STATES.CLOSED,
 };
 
-export default withModelBase()(SignUp);
+export default SignUp;
