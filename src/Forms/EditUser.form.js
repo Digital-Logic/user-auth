@@ -56,56 +56,91 @@ function EditUser({ user, onSubmit }) {
 
     return (
         <Grid container direction="column">
-            <Grid container item justify="flex-end">
-                <LockedButton
-                    locked={state.locked}
-                    onClick={() => dispatch({ type: ACTIONS.TOGGLE_LOCKED })}/>
-            </Grid>
+            <Can I="update" on={user}>
+                <Grid container item justify="flex-end">
+                    <LockedButton
+                        locked={state.locked}
+                        onClick={() => dispatch({ type: ACTIONS.TOGGLE_LOCKED })}/>
+                </Grid>
+            </Can>
 
             <Grid item>
                 <Form onSubmit={_onSubmit}>
-                    <Input
-                        label="First name"
-                        name={ACTIONS.FIRST_NAME}
-                        value={state.firstName.value}
-                        onChange={onChange}
-                        validate={[required()]}
-                        disabled={ state.locked } />
+                    <Can I="read firstName" on={user}>
+                        <Can I="update firstName" on={user} passThrough>
+                        { can =>
+                            <Input
+                                label="First name"
+                                name={ACTIONS.FIRST_NAME}
+                                value={state.firstName.value}
+                                onChange={onChange}
+                                validate={[required()]}
+                                disabled={ !can || state.locked } />
+                        }
+                        </Can>
+                    </Can>
 
-                    <Input
-                        label="Last Name"
-                        name={ACTIONS.LAST_NAME}
-                        value={state.lastName.value}
-                        onChange={onChange}
-                        validate={[required()]}
-                        disabled={ state.locked } />
+                    <Can I="read lastName" on={user}>
+                        <Can I="update lastName" on={user} passThrough>
+                        { can =>
+                            <Input
+                                label="Last Name"
+                                name={ACTIONS.LAST_NAME}
+                                value={state.lastName.value}
+                                onChange={onChange}
+                                validate={[required()]}
+                                disabled={ !can || state.locked } />
+                        }
+                        </Can>
+                    </Can>
 
-                    <Select
-                        label="Role"
-                        name={ACTIONS.ROLE}
-                        validate={[required()]}
-                        value={state.role.value}
-                        onChange={onChange}
-                        disabled={state.locked}>
+                    <Can I="read role" on={user}>
+                        <Can I="update role" on={user} passThrough>
+                        { can =>
+                            <Select
+                                label="Role"
+                                name={ACTIONS.ROLE}
+                                validate={[required()]}
+                                value={state.role.value}
+                                onChange={onChange}
+                                disabled={ !can || state.locked}>
 
-                        <MenuItem value='USER'>User</MenuItem>
-                        <MenuItem value="ADMIN">Admin</MenuItem>
+                                <MenuItem value='USER'>User</MenuItem>
+                                <MenuItem value="ADMIN">Admin</MenuItem>
 
-                    </Select>
+                            </Select>
+                        }
+                        </Can>
 
-                    <Checkbox
-                        label="Account Disabled"
-                        name={ACTIONS.ACCOUNT_DISABLED}
-                        value={state.disabled.value}
-                        onChange={onChange}
-                        disabled={state.locked} />
+                    </Can>
 
-                    <Checkbox
-                        label="Account Verified"
-                        name={ACTIONS.ACCOUNT_VERIFIED}
-                        value={state.accountVerified.value}
-                        onChange={onChange}
-                        disabled={state.locked} />
+                    <Can I="read disabled" on={user}>
+                        <Can I="update disabled" on={user} passThrough>
+                        { can =>
+                            <Checkbox
+                                label="Account Disabled"
+                                name={ACTIONS.ACCOUNT_DISABLED}
+                                value={state.disabled.value}
+                                onChange={onChange}
+                                disabled={ !can || state.locked} />
+
+                        }
+                        </Can>
+                    </Can>
+
+
+                    <Can I="read accountVerified" on={user}>
+                        <Can I="update accountVerified" on={user} passThrough>
+                        { can =>
+                            <Checkbox
+                                label="Account Verified"
+                                name={ACTIONS.ACCOUNT_VERIFIED}
+                                value={state.accountVerified.value}
+                                onChange={onChange}
+                                disabled={!can || state.locked} />
+                        }
+                        </Can>
+                    </Can>
 
                     <Grid container justify="flex-end">
                         <Button
