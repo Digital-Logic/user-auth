@@ -1,4 +1,3 @@
-
 const ACTIONS = Object.freeze({
     GET_AUTH_REQUEST: 'GET_AUTH_REQUEST',
     GET_AUTH_SUCCESS: 'GET_AUTH_SUCCESS',
@@ -23,11 +22,11 @@ const ACTIONS = Object.freeze({
     SEND_RESET_PASSWORD_FAILURE: 'SEND_RESET_PASSWORD_FAILURE',
     RESET_PASSWORD_REQUEST: 'RESET_PASSWORD_REQUEST',
     RESET_PASSWORD_SUCCESS: 'RESET_PASSWORD_SUCCESS',
-    RESET_PASSWORD_FAILURE: 'RESET_PASSWORD_FAILURE'
+    RESET_PASSWORD_FAILURE: 'RESET_PASSWORD_FAILURE',
 });
 
 const initialState = {
-    isAuthenticating: false,
+    isAuthenticating: true,
     isAuthenticated: false,
     id: null,
     rules: []
@@ -44,7 +43,10 @@ function reducer(state=initialState, { type, user }) {
 
         case ACTIONS.SIGN_IN_FAILURE:
         case ACTIONS.GET_AUTH_FAILURE:
-            return initialState;
+            return {
+                ...initialState,
+                isAuthenticating: false
+            };
 
         case ACTIONS.SIGN_IN_SUCCESS:
         case ACTIONS.GET_AUTH_SUCCESS:

@@ -13,6 +13,7 @@ function getAuth() {
         return axios.get('/api/auth/sign-in')
             .then(response => {
                 dispatch(success(response.data));
+                return response.data;
             })
             .catch(error => {
                 dispatch(failure(error));

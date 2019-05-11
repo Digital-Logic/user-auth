@@ -1,12 +1,10 @@
 import React from 'react';
 import DialogActions from '@material-ui/core/DialogActions';
-import { ACTIONS } from '../Store/auth/auth.reducer';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
 
 const STATES = Object.freeze({
-    ...ACTIONS,
     CLOSED: 'CLOSED',
     LOADING: 'LOADING',
     SUCCESS: 'SUCCESS',
@@ -23,7 +21,10 @@ const STATES = Object.freeze({
     RESET_PASSWORD_FAILURE: 'RESET_PASSWORD_FAILURE',
     RESET_PASSWORD_SUCCESS: 'RESET_PASSWORD_SUCCESS',
     SEND_RESET_PASSWORD_SUCCESS: 'SEND_RESET_PASSWORD_SUCCESS',
-    SEND_RESET_PASSWORD_FAILURE: 'SEND_RESET_PASSWORD_FAILURE'
+    SEND_RESET_PASSWORD_FAILURE: 'SEND_RESET_PASSWORD_FAILURE',
+    CONFIRM_DELETE_USER: 'CONFIRM_DELETE_USER',
+    DELETE_ACCOUNT_SUCCESS: 'DELETE_ACCOUNT_SUCCESS',
+    DELETE_ACCOUNT_FAILURE: 'DELETE_ACCOUNT_FAILURE'
 });
 
 
