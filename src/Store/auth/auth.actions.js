@@ -112,7 +112,7 @@ function signOut({ model }) {
 
                 model.actions.redirect(ROUTES.HOME);
                 // Get new authentication
-                dispatch(getAuth())
+                return dispatch(getAuth())
                     .then(() => {
                         model.actions.setState(MODEL_STATES.CLOSED);
                     });
@@ -125,7 +125,7 @@ function signOut({ model }) {
 
     function request() { return { type: ACTIONS.SIGN_OUT_REQUEST }; }
     function success() { return { type: ACTIONS.SIGN_OUT_SUCCESS }; }
-    function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE }; }
+    function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE, error }; }
 }
 
 function resetPassword({ token, pwd, model }) {
