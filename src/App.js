@@ -8,7 +8,7 @@ import { Switch, Route, withRouter } from 'react-router-dom';
 import AppBar from './Components/AppBar';
 import { AppInitModel, STATES as MODEL_STATES, withModel } from './Models';
 import { connect } from 'react-redux';
-import { authActions } from './Store';
+import { authActions, userActions } from './Store';
 import queryString from 'query-string';
 
 
@@ -29,7 +29,7 @@ const styles = theme => ({
 
 
 function App({ classes, isAuthenticated, userID, model, getAuth, processToken,
-        signOut, signUp, sendResetPassword, history, location }) {
+        signOut, signUp, sendResetPassword, getUser, history, location }) {
 
     // Initialize app
     useEffect(() => {
