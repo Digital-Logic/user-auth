@@ -94,7 +94,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
     return {
         getUser: ({ userID, model }) => dispatch(userActions.getUser({ userID, model })),
-        updateUser: ({ user, model }) => dispatch(userActions.updateUser({ user, model })),
+        updateUser: (...args) => dispatch(userActions.updateUser(...args)),
         deleteUser: (...args) => dispatch(userActions.deleteUser(...args))
     };
 }

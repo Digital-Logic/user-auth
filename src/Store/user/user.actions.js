@@ -28,15 +28,13 @@ function getUser({ userID, model }) {
     function failure(error) { return { type: ACTIONS.GET_USER_FAILURE, error }; }
 }
 
-function updateUser({ userData, model }) {
+function updateUser({ user, model }) {
 
     return function _updateUser(dispatch) {
-        dispatch(request(userData));
+        dispatch(request(user));
         model.actions.setState(MODEL_STATES.LOADING);
 
-        return axios.put(`/api/users/${userData._id}`, {
-                userData
-            })
+        return axios.put(`/api/users/${user._id}`, user)
             .then(response => {
                 dispatch(success(response.data));
                 model.actions.setState(MODEL_STATES.CLOSED);

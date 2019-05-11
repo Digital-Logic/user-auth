@@ -158,12 +158,15 @@ function EditUser({ user, onSubmit }) {
 
     function _onSubmit() {
         onSubmit({
-            firstName: state.firstName,
-            lastName: state.lastName,
-            role: state.role,
-            accountVerified: state.accountVerified,
-            disabled: state.accountDisabled
+            _id: user._id,
+            firstName: state.firstName.value,
+            lastName: state.lastName.value,
+            role: state.role.value,
+            accountVerified: state.accountVerified.value,
+            disabled: state.disabled.value
         });
+
+        dispatch({ type: ACTIONS.TOGGLE_LOCKED });
     }
 
     function onChange(event) {
@@ -228,10 +231,9 @@ function EditUser({ user, onSubmit }) {
             case ACTIONS.MERGE:
                 return {
                     ...state,
-                    // Walk through the following properties, update any that have changed and have not
-                    // been modified by the end user.
+                    // Walk through the following properties, update any values that has changed
                     ...['firstName', 'lastName', 'role', 'disabled', 'accountVerified' ].reduce( (newUser, key) => {
-                        if (state[key].pristine && user[key])
+                        if (user[key])
                             newUser[key] = { value: user[key], pristine: true };
                         return newUser;
                     },{})
