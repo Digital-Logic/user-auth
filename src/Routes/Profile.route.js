@@ -1,13 +1,18 @@
 import React, { useEffect } from 'react';
 import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
+import Verified from '@material-ui/icons/VerifiedUser';
 import Grid from '@material-ui/core/Grid';
 import { withAuth } from '../Auth';
 import EditUser from '../Forms/EditUser.form';
 import { withModel, ProfileModel, STATES as MODEL_STATES } from '../Models';
 import compose from 'recompose/compose';
+import IdentityIcon from '@material-ui/icons/PermIdentity';
 import Button from '@material-ui/core/Button';
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import { connect } from 'react-redux';
@@ -69,6 +74,18 @@ function Profile({ className, classes, model, userID, getUser, updateUser, delet
             </Grid>
             <Grid item className={className}>
                 <Card raised>
+                    <CardHeader
+                        avatar={ <Avatar className={classes.avatar}><IdentityIcon size="large"/></Avatar> }
+                        title={ user.email }
+                        subheader={`Account created: ${new Date(user.createdAt).toLocaleDateString()}`}
+                        classes={{ title: classes.title }}
+                        action={
+                            <Verified fontSize="small" className={classNames( classes.verifiedIcon, {
+                                [classes.verifiedAccount]: user.accountVerified
+                            })} />
+                        }
+                    />
+
                     <CardContent>
                         <Grid container direction="column" spacing={16}>
                             <Grid item>
