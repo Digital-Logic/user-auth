@@ -9,7 +9,7 @@ import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { STATES, CloseButton } from './constants';
-
+import ChangePasswordForm from '../Forms/ChangePassword.form';
 
 const styles = theme => ({
     deleteBtn: {
@@ -24,23 +24,38 @@ const styles = theme => ({
 function ProfileModel({ model, state, classes }) {
 
     switch(state) {
-        // case STATES.SUCCESS:
-        //     return (
-        //         <Fragment>
-        //             <DialogTitle>Success</DialogTitle>
-        //             <DialogContent>
-        //                 <DialogContentText></DialogContentText>
-        //             </DialogContent>
-        //         </Fragment>
-        //     );
-        // case STATES.FAILURE:
-        //     return (
-        //         <Fragment>
-        //             <DialogTitle>Failure</DialogTitle>
-        //             <DialogContent>
-        //             </DialogContent>
-        //         </Fragment>
-        //     );
+
+        case STATES.CHANGE_PASSWORDS_FORM:
+            return (
+                <Fragment>
+                <DialogTitle align="center">Delete Account</DialogTitle>
+                <DialogContent>
+                    <ChangePasswordForm
+                        onSubmit={ pwds => model.actions.changePassword({ ...pwds, model })}
+                        onCancel={model.actions.onCancel}/>
+                </DialogContent>
+            </Fragment>
+            );
+        case STATES.CHANGE_PASSWORDS_SUCCESS:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Password Changes</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">Your password has been successfully changed</DialogContentText>
+                    </DialogContent>
+                    <CloseButton model={model} />
+                </Fragment>
+            );
+        case STATES.CHANGE_PASSWORDS_FAILURE:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Error Changing Password</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">An error ocurred while updating your password.</DialogContentText>
+                    </DialogContent>
+                    <CloseButton model={model} />
+                </Fragment>
+            );
         case STATES.CONFIRM_DELETE_USER:
             return (
                 <Fragment>

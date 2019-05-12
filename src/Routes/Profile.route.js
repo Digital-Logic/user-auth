@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import { connect } from 'react-redux';
-import { userActions } from '../Store';
+import { userActions, authActions } from '../Store';
 
 const styles = theme => ({
     avatar: {
@@ -36,7 +36,7 @@ const styles = theme => ({
     }
 });
 
-function Profile({ className, classes, model, userID, getUser, updateUser, deleteUser, user, history }) {
+function Profile({ className, classes, model, userID, getUser, updateUser, deleteUser, changePassword, user, history }) {
 
     useEffect(() => {
         if (userID && userID.match(/^[0-9a-fA-F]{24}$/)) {
@@ -44,7 +44,17 @@ function Profile({ className, classes, model, userID, getUser, updateUser, delet
 
             model.actions.createActions({
                 deleteUser: () => deleteUser({ userID, model}),
-                redirect: path => history.push(path)
+                redirect: path => history.push(path),
+                onCancel: () => model.actions.setState(MODEL_STATES.CLOSED),
+                onClose: model => {
+                    if (model.state !== MODEL_STATES.LOADING &&
+                            model.state !== MODEL_STATES.CHANGE_PASSWORDS_LOADING &&
+                            model.state !== MODEL_STATES.CHANGE_PASSWORDS_FORM &&
+                            model.state !== MODEL_STATES.SIGN_OUT &&
+                            model.state !== MODEL_STATES.CLOSED )
+                        model.actions.setState(MODEL_STATES.CLOSED);
+                },
+                changePassword: (arg) => changePassword(arg)
             });
         }
 
@@ -72,7 +82,9 @@ function Profile({ className, classes, model, userID, getUser, updateUser, delet
                                     className={classes.deleteBtn}
                                     onClick={() => model.actions.setState(MODEL_STATES.CONFIRM_DELETE_USER)}
                                     variant="outlined"><DeleteIcon />Delete Account</Button>
+
                                 <Button
+                                    onClick={() => model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_FORM)}
                                     variant="outlined">Change Password</Button>
                             </Grid>
                         </Grid>
@@ -94,8 +106,9 @@ function mapState(state) {
 function mapDispatch(dispatch) {
     return {
         getUser: ({ userID, model }) => dispatch(userActions.getUser({ userID, model })),
-        updateUser: (...args) => dispatch(userActions.updateUser(...args)),
-        deleteUser: (...args) => dispatch(userActions.deleteUser(...args))
+        updateUser: (args) => dispatch(userActions.updateUser(args)),
+        deleteUser: (args) => dispatch(userActions.deleteUser(args)),
+        changePassword: (args) => dispatch(authActions.changePassword(args))
     };
 }
 

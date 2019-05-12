@@ -150,6 +150,29 @@ function resetPassword({ token, pwd, model }) {
     function failure(error) { return { type: ACTIONS.RESET_PASSWORD_FAILURE, error }; }
 }
 
+function changePassword({ pwd, newPwd, model }) {
+    return function _changePassword(dispatch) {
+        dispatch(request(newPwd));
+        model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_LOADING);
+
+        return axios.post('/api/auth/change-password', {
+                password: pwd,
+                newPassword: newPwd
+            }).then(response => {
+                dispatch(success());
+                model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_SUCCESS);
+            })
+            .catch(error => {
+                dispatch(failure(error));
+                model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_FAILURE);
+            });
+
+    }
+    function request() { return { type: ACTIONS.CHANGE_PASSWORD_REQUEST }; }
+    function success() { return { type: ACTIONS.CHANGE_PASSWORD_SUCCESS }; }
+    function failure(error) { return { type: ACTIONS.CHANGE_PASSWORD_FAILURE, error}; }
+}
+
 function sendResetPasswordEmail({ userData, model }) {
 
     return function _resetPassword(dispatch) {
@@ -298,6 +321,7 @@ export {
     signIn,
     signOut,
     resetPassword,
+    changePassword,
     sendResetPasswordEmail,
     processQueryStringToken,
     sendEmailVerification
