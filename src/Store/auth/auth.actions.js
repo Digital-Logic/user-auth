@@ -240,7 +240,7 @@ function processQueryStringToken({ token, userID, model })
                     }
 
                     return {
-                        closeModel: true,
+                        closeModel: false,
                     };
                 })
                 .catch(error => {

@@ -43,7 +43,7 @@ function SignUp({ className, signUp, model, history }) {
     function onSubmit(userData) {
         // Create a redirect action, so the model can redirect the user.
         model.actions.createActions({
-            onRedirect: path => history.push(path)
+            redirect: path => history.push(path)
         });
 
         signUp({ userData, model })

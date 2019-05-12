@@ -6,7 +6,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Progress from '../UI/Progress';
 import PropTypes from 'prop-types';
 import { ROUTES } from '../Routes';
-import { STATES, CloseButton } from './constants';
+import { STATES, CloseButton, STATES as MODEL_STATES } from './constants';
 import ResetPasswordForm from '../Forms/ResetPassword.form';
 
 
@@ -24,7 +24,10 @@ function AppInitModel({ model, state }) {
                         <DialogContentText align="center">You can now log in.
                             <Button
                                 color="primary"
-                                onClick={() => model.actions.redirect(ROUTES.SIGN_IN)}
+                                onClick={() =>  {
+                                    model.actions.redirect(ROUTES.SIGN_IN);
+                                    model.actions.setState(MODEL_STATES.CLOSED);
+                                }}
                             >Login</Button>
                         </DialogContentText>
 
