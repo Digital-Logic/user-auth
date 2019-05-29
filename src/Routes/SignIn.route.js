@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -12,12 +12,39 @@ import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 import { SignUpLink } from './SignUp.route';
 import compose from 'recompose/compose';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+import axios from 'axios';
+import Divider from '@material-ui/core/Divider';
 
-function SignIn({ className, model, signInAction, sendVerificationEmail, history }) {
+const styles = theme => ({
+    socialLogin: {
+        width: '100%',
+        padding: 12
+    },
+    google: {
+        backgroundColor: '#4885ed',
+        color: theme.palette.getContrastText('#4885ed'),
+        '&:hover': {
+            backgroundColor: '#3867b7'
+        }
+    }
+});
+
+function SignIn({ className, classes, model, signInAction, sendVerificationEmail, history }) {
 
     const [formKey, setFormKey] = useState(1);
     const [errorMessage, setErrorMessage] = useState();
+    const [signInLink, setSignInLink ] = useState();
 
+
+    useEffect(() => {
+        axios.get('/api/auth/OAUTH2')
+            .then(result => {
+                console.log(result);
+                setSignInLink(result.data.url);
+            });
+    },[]);
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -28,10 +55,26 @@ function SignIn({ className, model, signInAction, sendVerificationEmail, history
             <Grid item className={className}>
                 <Card raised>
                     <CardContent>
-                        <SignInForm
-                            key={formKey}
-                            onSubmit={onSubmit}/>
+                        <Grid container direction="column" spacing={16}>
+                            <Grid item xs={12}>
+                                <SignInForm
+                                    key={formKey}
+                                    onSubmit={onSubmit}/>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button
+                                    href={signInLink}
+                                    className={classNames(classes.socialLogin, classes.google)}
+                                    variant="contained"
+                                >Sign In with Google</Button>
+                            </Grid>
+                            <Grid item xs={12}>
 
+                            </Grid>
+                        </Grid>
                     </CardContent>
                 </Card>
             </Grid>
@@ -39,23 +82,6 @@ function SignIn({ className, model, signInAction, sendVerificationEmail, history
             <Grid item>
                 <SignUpLink />
             </Grid>
-
-            {/* <SignInModel
-                state={state}
-                setState={setState}
-                errorMessage={errorMessage}
-                onSendVerificationEmail={() => {
-                    sendVerificationEmail({ userData, model: { state, setState, setErrorMessage } })
-                        .then(({ clearForm, redirect }={}) => {
-                            if (redirect)
-                                history.push(redirect);
-
-                            if (clearForm)
-                                setFormKey(formKey + 1);
-                        });
-                }}
-                sendVerificationEmail={sendVerificationEmail}
-                /> */}
         </Grid>
     );
 
@@ -103,6 +129,7 @@ function mapDispatch(dispatch) {
 }
 
 export default compose(
+    withStyles(styles),
     connect(null, mapDispatch),
     withModel(SignInModel)
 )(SignIn);

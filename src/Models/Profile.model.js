@@ -86,16 +86,47 @@ function ProfileModel({ model, state, classes }) {
                 </Fragment>
             );
 
-       default:
-        return (
-            <Fragment>
-                <DialogTitle>Loading</DialogTitle>
-                <DialogContent>
-                    <Progress />
-                </DialogContent>
-                <CloseButton model={model} />
-            </Fragment>
-        );
+        case STATES.SEND_SET_PASSWORD:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Password Reset eMail Sent</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">Please check your email to reset your account.</DialogContentText>
+                    </DialogContent>
+                    <CloseButton model={model}/>
+                </Fragment>
+            );
+
+        case STATES.SEND_SET_PASSWORD_FAILURE:
+            return (
+                <Fragment>
+                    <DialogTitle align="center">Password Reset Failed</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText align="center">{ model.messages[STATES.RESET_PASSWORD_FAILURE] || 'An error occurred' }</DialogContentText>
+                        {
+                            model.messages[STATES.RESET_PASSWORD_FAILURE].includes('activated') ?
+                                <DialogContentText align="center">Please check your email to activate your account
+                                    <Button
+                                        onClick={model.actions.onSendEmailVerification }
+                                        color="primary">Resend Verification Email</Button>
+                                </DialogContentText>
+                            : ''
+                        }
+                    </DialogContent>
+                    <CloseButton model={model} />
+                </Fragment>
+            );
+
+        default:
+            return (
+                <Fragment>
+                    <DialogTitle>Loading</DialogTitle>
+                    <DialogContent>
+                        <Progress />
+                    </DialogContent>
+                    <CloseButton model={model} />
+                </Fragment>
+            );
     }
 }
 

@@ -28,7 +28,7 @@ const styles = theme => ({
 });
 
 
-function App({ classes, isAuthenticated, userID, model, getAuth, processToken,
+function App({ classes, isAuthenticated, userID, model, getAuth, processQueryString,
         signOut, signUp, sendResetPassword, getUser, history, location }) {
 
     // Initialize app
@@ -58,14 +58,14 @@ function App({ classes, isAuthenticated, userID, model, getAuth, processToken,
 
         Promise.all([
             getAuth(),
-            processToken({ token: params.token, userID, model })
+            processQueryString({ params, userID, model })
         ])
         .then(([authResponse, tokenResponse={}])=> {
             if ( tokenResponse.closeModel )
                 model.actions.setState(MODEL_STATES.CLOSED);
 
             // Clear query strings
-            history.replace(location.path);
+           // history.replace(location.path);
         });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +118,7 @@ function mapDispatch(dispatch) {
         signOut: (...args) => dispatch(authActions.signOut(...args)),
         signUp: (...args) => dispatch(authActions.signUp(...args)),
         sendResetPassword: (...args) => dispatch(authActions.sendResetPasswordEmail(...args)),
-        processToken: (args) => dispatch(authActions.processQueryStringToken(args))
+        processQueryString: (args) => dispatch(authActions.processQueryString(args))
     };
 }
 

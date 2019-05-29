@@ -14,6 +14,9 @@ const ACTIONS = Object.freeze({
     PROCESS_QUERY_TOKEN_REQUEST: 'PROCESS_QUERY_TOKEN_REQUEST',
     PROCESS_QUERY_TOKEN_SUCCESS: 'PROCESS_QUERY_TOKEN_SUCCESS',
     PROCESS_QUERY_TOKEN_FAILURE: 'PROCESS_QUERY_TOKEN_FAILURE',
+    PROCESS_QUERY_CODE_REQUEST: 'PROCESS_QUERY_CODE_REQUEST',
+    PROCESS_QUERY_CODE_SUCCESS: 'PROCESS_QUERY_CODE_SUCCESS',
+    PROCESS_QUERY_CODE_FAILURE: 'PROCESS_QUERY_CODE_FAILURE',
     SEND_EMAIL_VERIFICATION_REQUEST: "SEND_EMAIL_VERIFICATION_REQUEST",
     SEND_EMAIL_VERIFICATION_SUCCESS: 'SEND_EMAIL_VERIFICATION_SUCCESS',
     SEND_EMAIL_VERIFICATION_FAILURE: 'SEND_EMAIL_VERIFICATION_FAILURE',
@@ -32,7 +35,11 @@ const initialState = {
     isAuthenticating: true,
     isAuthenticated: false,
     id: null,
-    rules: []
+    rules: [{
+        actions: 'read',
+        subject: ['User'],
+        fields: ['firstName', 'lastName']
+    }]
 };
 
 function reducer(state=initialState, { type, user }) {

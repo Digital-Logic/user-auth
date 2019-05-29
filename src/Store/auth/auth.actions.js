@@ -207,85 +207,115 @@ function sendResetPasswordEmail({ userData, model }) {
     function failure(error) { return { type: ACTIONS.SEND_RESET_PASSWORD_FAILURE, error }; }
 }
 
-function processQueryStringToken({ token, userID, model })
+function processQueryString({ params, userID, model })
 {
     const TOKEN_TYPE = Object.freeze({
         VERIFY_EMAIL: "VERIFY_EMAIL",
-        RESET_PASSWORD: "RESET_PASSWORD"
+        RESET_PASSWORD: "RESET_PASSWORD",
+        GOOGLE_AUTH: 'GOOGLE_AUTH'
     });
 
-    return function _processQueryStringToken (dispatch) {
+    return function _processQueryString (dispatch) {
+        const { token, code } = params;
 
-        // If we do not receive a token to process, return and close the model
-        if (!token)
-            return { closeModel: true };
+        // Process JWT token in query string
+        if (token)
+        {
+            const { type, id } = jwt.decode(token);
 
-        const { type, id } = jwt.decode(token);
+            // Check if the current user's id is the same as the,
+            // userID in the jwt token, if it is ignore the request
+            if (userID && userID === id) {
+                return;
+            }
 
-        // Check if the current user's id is the same as the,
-        // userID in the jwt token, if it is ignore the request
-        if (userID && userID === id) {
-            return;
-        }
-
-        dispatch(request(type));
-
-        if (type === TOKEN_TYPE.VERIFY_EMAIL) {
-            return axios.post('/api/auth/validate-token', { token })
-                .then(response => {
-
-                    if (response.status === 200) {
-                        dispatch(success());
-                        model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATED);
-                    }
-
-                    return {
-                        closeModel: false,
-                    };
-                })
-                .catch(error => {
-                    dispatch(failure(error));
-                    model.actions.createActions({
-                        onSendEmailVerification: () =>
-                            dispatch(sendEmailVerification({ userData: { id }, model }))
-                    });
-
-                    model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_TOKEN_INVALID);
-
-                    return {
-                        closeModel: false
-                    };
-
-                });
-        } else if (type === TOKEN_TYPE.RESET_PASSWORD) {
             dispatch(request(type));
-            return axios.post('/api/auth/validate-token', { token })
-                .then(response => {
-                    dispatch(success());
 
-                    model.actions.createActions({
-                        onResetPassword: ({ model, pwd }) => {
-                            dispatch(resetPassword({ model, token, pwd }))
+            if (type === TOKEN_TYPE.VERIFY_EMAIL) {
+                return axios.post('/api/auth/validate-token', { token })
+                    .then(response => {
+
+                        if (response.status === 200) {
+                            dispatch(success());
+                            model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATED);
                         }
-                    });
 
-                    model.actions.setState(MODEL_STATES.RESET_PASSWORD);
+                        return {
+                            closeModel: false,
+                        };
+                    })
+                    .catch(error => {
+                        dispatch(failure(error));
+                        model.actions.createActions({
+                            onSendEmailVerification: () =>
+                                dispatch(sendEmailVerification({ userData: { id }, model }))
+                        });
+
+                        model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_TOKEN_INVALID);
+
+                        return {
+                            closeModel: false
+                        };
+
+                    });
+            } else if (type === TOKEN_TYPE.RESET_PASSWORD) {
+                dispatch(request(type));
+                return axios.post('/api/auth/validate-token', { token })
+                    .then(response => {
+                        dispatch(success());
+
+                        model.actions.createActions({
+                            onResetPassword: ({ model, pwd }) => {
+                                dispatch(resetPassword({ model, token, pwd }))
+                            }
+                        });
+
+                        model.actions.setState(MODEL_STATES.RESET_PASSWORD);
+                    })
+                    .catch(error => {
+                        dispatch(failure(error));
+                        model.actions.createActions({
+                            sendResetPassword: () => {
+                                dispatch(sendResetPasswordEmail({ userData: { id }, model }))
+                            }
+                        });
+                        model.actions.setState(MODEL_STATES.RESET_PASSWORD_TOKEN_INVALID);
+                    });
+            }
+
+            function request(tokenType) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_REQUEST, tokenType }; }
+            function success() { return { type: ACTIONS.PROCESS_QUERY_TOKEN_SUCCESS }; }
+            function failure(error) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_FAILURE, error }; }
+
+            // Process code in query string
+        } else if (code) {
+
+            dispatch(request(code));
+
+            return axios.post('/api/auth/oauth2/google', { code })
+                .then(response => {
+                    dispatch(success(response));
+                    return dispatch(getAuth())
+                        .then(() => {
+                            return {
+                                closeModel: true
+                            };
+                        });
                 })
                 .catch(error => {
                     dispatch(failure(error));
-                    model.actions.createActions({
-                        sendResetPassword: () => {
-                            dispatch(sendResetPasswordEmail({ userData: { id }, model }))
-                        }
-                    });
-                    model.actions.setState(MODEL_STATES.RESET_PASSWORD_TOKEN_INVALID);
                 });
+
+            function request(code) { return { type: ACTIONS.PROCESS_QUERY_CODE_REQUEST, code }; }
+            function success() { return { type: ACTIONS.PROCESS_QUERY_CODE_SUCCESS }; }
+            function failure(error) { return { type: ACTIONS.PROCESS_QUERY_CODE_FAILURE, error }; }
+        } else {
+            // Close the model
+            return {
+                closeModel: true
+            };
         }
     }
-
-    function request(tokenType) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_REQUEST, tokenType }; }
-    function success() { return { type: ACTIONS.PROCESS_QUERY_TOKEN_SUCCESS }; }
-    function failure(error) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_FAILURE, error }; }
 }
 
 function sendEmailVerification({ userData, model }) {
@@ -323,6 +353,6 @@ export {
     resetPassword,
     changePassword,
     sendResetPasswordEmail,
-    processQueryStringToken,
+    processQueryString,
     sendEmailVerification
 };
