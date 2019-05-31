@@ -16,17 +16,31 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import axios from 'axios';
 import Divider from '@material-ui/core/Divider';
+import FacebookIcon from '../Icons/Facebook';
+import GoogleIcon from '../Icons/Google';
 
 const styles = theme => ({
     socialLogin: {
         width: '100%',
-        padding: 12
+        textTransform: 'none',
+        padding: 12,
+        '& > span > span': {
+            flexGrow: 1,
+            textAlign: 'center'
+        }
     },
     google: {
-        backgroundColor: '#4885ed',
-        color: theme.palette.getContrastText('#4885ed'),
+        backgroundColor: '#3b6dc2',
+        color: theme.palette.getContrastText('#2b508d'),
         '&:hover': {
-            backgroundColor: '#3867b7'
+            backgroundColor: '#3664b2'
+        }
+    },
+    facebook: {
+        backgroundColor: '#3c5a99',
+        color: theme.palette.getContrastText('#3c5a99'),
+        '&:hover': {
+            backgroundColor: '#344e85'
         }
     }
 });
@@ -35,15 +49,15 @@ function SignIn({ className, classes, model, signInAction, sendVerificationEmail
 
     const [formKey, setFormKey] = useState(1);
     const [errorMessage, setErrorMessage] = useState();
-    const [signInLink, setSignInLink ] = useState();
+    const [signInLink, setSignInLink ] = useState({});
 
 
     useEffect(() => {
         axios.get('/api/auth/OAUTH2')
             .then(result => {
-                console.log(result);
-                setSignInLink(result.data.url);
+                setSignInLink(result.data);
             });
+
     },[]);
 
     return (
@@ -66,12 +80,24 @@ function SignIn({ className, classes, model, signInAction, sendVerificationEmail
                             </Grid>
                             <Grid item xs={12}>
                                 <Button
-                                    href={signInLink}
+                                    href={signInLink.googleUrl}
+                                    disabled={!signInLink.googleUrl}
                                     className={classNames(classes.socialLogin, classes.google)}
-                                    variant="contained"
-                                >Sign In with Google</Button>
+                                    variant="contained">
+                                    <GoogleIcon />
+                                    <span>Sign In with Google</span>
+                                </Button>
                             </Grid>
+
                             <Grid item xs={12}>
+                                <Button
+                                    href={signInLink.facebookUrl}
+                                    disabled={!signInLink.facebookUrl}
+                                    className={classNames(classes.socialLogin, classes.facebook)}
+                                    variant="contained">
+                                    <FacebookIcon />
+                                    <span>Sign in with Facebook</span>
+                                </Button>
 
                             </Grid>
                         </Grid>
@@ -84,6 +110,10 @@ function SignIn({ className, classes, model, signInAction, sendVerificationEmail
             </Grid>
         </Grid>
     );
+
+    function responseFacebook(response) {
+        console.log(response);
+    }
 
     function onSubmit(userData) {
 

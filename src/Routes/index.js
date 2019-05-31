@@ -4,7 +4,8 @@ const ROUTES = Object.freeze({
     SIGN_IN: '/sign-in',
     SIGN_UP: '/sign-up',
     RESET_PASSWORD: '/reset-password',
-    PROFILE: '/profile'
+    PROFILE: '/profile',
+    OAUTH: '/auth',
 });
 
 export {

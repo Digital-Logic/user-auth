@@ -99,14 +99,11 @@ function Profile({ className, classes, model, userID, getUser, updateUser, delet
                                     className={classes.deleteBtn}
                                     onClick={() => model.actions.setState(MODEL_STATES.CONFIRM_DELETE_USER)}
                                     variant="outlined"><DeleteIcon />Delete Account</Button>
-                                {
-                                    user.authTypes && user.authTypes.indexOf('PWD') !== -1 ?
-                                    <Button
-                                        onClick={() => model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_FORM)}
-                                        variant="outlined">Change Password</Button> :
 
-                                    <Button variant="outlined">Create Password</Button>
-                                }
+                                <Button
+                                    disabled={ !user.authTypes || user.authTypes.indexOf('PWD') === -1}
+                                    onClick={() => model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_FORM)}
+                                    variant="outlined">Change Password</Button>
                             </Grid>
                         </Grid>
 

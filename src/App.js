@@ -8,7 +8,7 @@ import { Switch, Route, withRouter } from 'react-router-dom';
 import AppBar from './Components/AppBar';
 import { AppInitModel, STATES as MODEL_STATES, withModel } from './Models';
 import { connect } from 'react-redux';
-import { authActions, userActions } from './Store';
+import { authActions } from './Store';
 import queryString from 'query-string';
 
 
@@ -58,14 +58,18 @@ function App({ classes, isAuthenticated, userID, model, getAuth, processQueryStr
 
         Promise.all([
             getAuth(),
-            processQueryString({ params, userID, model })
+            processQueryString({ params, userID, model, path: location.pathname })
         ])
         .then(([authResponse, tokenResponse={}])=> {
             if ( tokenResponse.closeModel )
                 model.actions.setState(MODEL_STATES.CLOSED);
 
-            // Clear query strings
-           // history.replace(location.path);
+                // Clear query string
+            history.replace(location.path);
+
+            // Redirect and clear query string
+            if ( tokenResponse.redirect)
+                history.replace(tokenResponse.redirect)
         });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,6 +87,9 @@ function App({ classes, isAuthenticated, userID, model, getAuth, processQueryStr
             <Switch>
                 <Route exact path={ROUTES.HOME} render={(props) =>
                     <Home className={classes.card} {...props} />} />
+
+                <Route path={ROUTES.OAUTH}
+                    render={props => <Home className={classes.card} {...props} />} />
 
                 <Route path={ROUTES.PROFILE} render={(props) =>
                     <Profile className={classes.card} {...props} />} />

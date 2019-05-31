@@ -4,7 +4,6 @@ import { ROUTES } from '../../Routes';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
-
 function getAuth() {
 
     return function _getAuth(dispatch) {
@@ -207,7 +206,7 @@ function sendResetPasswordEmail({ userData, model }) {
     function failure(error) { return { type: ACTIONS.SEND_RESET_PASSWORD_FAILURE, error }; }
 }
 
-function processQueryString({ params, userID, model })
+function processQueryString({ params, userID, model, path })
 {
     const TOKEN_TYPE = Object.freeze({
         VERIFY_EMAIL: "VERIFY_EMAIL",
@@ -222,7 +221,6 @@ function processQueryString({ params, userID, model })
         if (token)
         {
             const { type, id } = jwt.decode(token);
-
             // Check if the current user's id is the same as the,
             // userID in the jwt token, if it is ignore the request
             if (userID && userID === id) {
@@ -292,13 +290,17 @@ function processQueryString({ params, userID, model })
 
             dispatch(request(code));
 
-            return axios.post('/api/auth/oauth2/google', { code })
+            return axios.post('/api/auth/oauth2', {
+                    code,
+                    path
+                })
                 .then(response => {
                     dispatch(success(response));
                     return dispatch(getAuth())
                         .then(() => {
                             return {
-                                closeModel: true
+                                closeModel: true,
+                                redirect: ROUTES.PROFILE
                             };
                         });
                 })
