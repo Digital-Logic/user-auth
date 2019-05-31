@@ -11,6 +11,7 @@
 sign-in, sign-up, password-reset, email address verification, profile page, update and delete  user accounts.
 
 * Access Control: role-based access control at the route level, and at a per-field level within views.
+* Social media login support through facebook and google.
 * Authentication: json web tokens are stored in httpOnly cookies
     * access tokens - short lived jwt
     * refresh tokens - long lived jwt are used to acquire a new access token
