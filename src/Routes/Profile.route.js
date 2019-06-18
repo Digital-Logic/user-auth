@@ -41,7 +41,10 @@ const styles = theme => ({
     }
 });
 
-function Profile({ className, classes, model, userID, getUser, updateUser, deleteUser, changePassword, user, history }) {
+function Profile({ className, classes, model, userID, getUser, updateUser,
+        deleteUser, changePassword, user, history, subscribeSocket }) {
+
+    useEffect(subscribeSocket,[]);
 
     useEffect(() => {
         if (userID && userID.match(/^[0-9a-fA-F]{24}$/)) {
@@ -126,7 +129,8 @@ function mapDispatch(dispatch) {
         getUser: ({ userID, model }) => dispatch(userActions.getUser({ userID, model })),
         updateUser: (args) => dispatch(userActions.updateUser(args)),
         deleteUser: (args) => dispatch(userActions.deleteUser(args)),
-        changePassword: (args) => dispatch(authActions.changePassword(args))
+        changePassword: (args) => dispatch(authActions.changePassword(args)),
+        subscribeSocket: () => userActions.subscribeUserSocket(dispatch)
     };
 }
 

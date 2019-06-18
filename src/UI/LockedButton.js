@@ -15,7 +15,7 @@ function LockedButton({ locked, onClick, classes, children }) {
     return (
         <Button onClick={onClick}>
         { locked ? <LockIcon fontSize="small" className={classes.icon}/> : <LockOpenIcon fontSize="small" className={classes.icon} /> }
-        { children }
+        { children && children(locked) }
         </Button>
     );
 }
@@ -23,7 +23,8 @@ function LockedButton({ locked, onClick, classes, children }) {
 LockedButton.propTypes = {
     classes: PropTypes.object.isRequired,
     locked: PropTypes.bool.isRequired,
-    onClick: PropTypes.func.isRequired
+    onClick: PropTypes.func.isRequired,
+    children: PropTypes.func
 };
 
 export default withStyles(styles)(LockedButton);

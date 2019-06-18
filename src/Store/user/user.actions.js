@@ -4,6 +4,34 @@ import { ACTIONS } from './user.reducer';
 import { GLOBAL_ACTIONS } from '../global';
 import { authActions } from '../auth';
 import { ROUTES } from '../../Routes';
+import { SOCKET_ACTIONS } from '../SocketMiddleware';
+
+
+function subscribeUserSocket(dispatch) {
+    const handles = [ACTIONS.SYNC_USER_INFO]
+        .map(event => ([
+            event,
+            dispatch({
+                type: SOCKET_ACTIONS.SUBSCRIBE,
+                event,
+                handle: data =>
+                    dispatch({
+                        type: `RECEIVE: ${event}`,
+                        user: data
+                    })
+            })
+        ]));
+
+    return () => {
+        handles.forEach(([event, handle]) => {
+            dispatch({
+                type: SOCKET_ACTIONS.UNSUBSCRIBE,
+                event,
+                handle
+            });
+        });
+    };
+}
 
 function getUser({ userID, model }) {
 
@@ -37,6 +65,11 @@ function updateUser({ user, model }) {
         return axios.put(`/api/users/${user._id}`, user)
             .then(response => {
                 dispatch(success(response.data));
+                dispatch({
+                    type: SOCKET_ACTIONS.EMIT,
+                    event: ACTIONS.SYNC_USER_INFO,
+                    data: response.data
+                });
                 model.actions.setState(MODEL_STATES.CLOSED);
             })
             .catch(error => {
@@ -90,5 +123,6 @@ function deleteUser({ userID, model }) {
 export {
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    subscribeUserSocket
 };

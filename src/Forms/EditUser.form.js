@@ -60,7 +60,9 @@ function EditUser({ user, onSubmit }) {
                 <Grid container item justify="flex-end">
                     <LockedButton
                         locked={state.locked}
-                        onClick={() => dispatch({ type: ACTIONS.TOGGLE_LOCKED })}/>
+                        onClick={() => dispatch({ type: ACTIONS.TOGGLE_LOCKED })}>
+                        { locked => locked ? 'Edit' : 'Lock' }
+                        </LockedButton>
                 </Grid>
             </Can>
 

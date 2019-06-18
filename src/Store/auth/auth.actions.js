@@ -10,8 +10,10 @@ import { SOCKET_ACTIONS } from '../SocketMiddleware';
  */
 function socketSubscribe(dispatch) {
 
-    const handlers = [ACTIONS.SYNC_AUTH_SUBSCRIBE_SUCCESS,
-        ACTIONS.SYNC_AUTH_LOGOUT].map( event => ([
+    const handlers = [
+        ACTIONS.SYNC_AUTH_SUBSCRIBE_SUCCESS,
+        ACTIONS.SYNC_AUTH_LOGOUT
+    ].map( event => ([
         event,
         dispatch({
             type: SOCKET_ACTIONS.SUBSCRIBE,

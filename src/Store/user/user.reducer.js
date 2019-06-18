@@ -9,7 +9,8 @@ const ACTIONS = Object.freeze({
     UPDATE_USER_FAILURE: 'UPDATE_USER_FAILURE',
     DELETE_USER_REQUEST: 'DELETE_USER_REQUEST',
     DELETE_USER_SUCCESS: 'DELETE_USER_SUCCESS',
-    DELETE_USER_FAILURE: 'DELETE_USER_FAILURE'
+    DELETE_USER_FAILURE: 'DELETE_USER_FAILURE',
+    SYNC_USER_INFO: 'SYNC_USER_INFO'
 });
 
 
@@ -22,6 +23,7 @@ function reducer(state={}, { type, user, rules }) {
                 [user._id]: { ...user, __type: 'User' }
             };
 
+        case `RECEIVE: ${ACTIONS.SYNC_USER_INFO}`:
         case ACTIONS.UPDATE_USER_SUCCESS:
             return {
                 ...state,
