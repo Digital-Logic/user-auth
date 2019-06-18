@@ -29,13 +29,15 @@ const styles = theme => ({
 
 
 function App({ classes, isAuthenticated, userID, model, getAuth, processQueryString,
-        signOut, signUp, sendResetPassword, getUser, history, location }) {
+        signOut, signUp, sendResetPassword, getUser, history, location, socketSubscribe }) {
+
+
+    useEffect(socketSubscribe, []);
 
     // Initialize app
     useEffect(() => {
         // Process query string tokens
         const params = queryString.parse(location.search);
-
         model.actions.createActions({
             redirect: path => {
                 history.push(path); // Redirect to url
@@ -64,7 +66,7 @@ function App({ classes, isAuthenticated, userID, model, getAuth, processQueryStr
             if ( tokenResponse.closeModel )
                 model.actions.setState(MODEL_STATES.CLOSED);
 
-                // Clear query string
+            // Clear query string
             history.replace(location.path);
 
             // Redirect and clear query string
@@ -125,7 +127,8 @@ function mapDispatch(dispatch) {
         signOut: (...args) => dispatch(authActions.signOut(...args)),
         signUp: (...args) => dispatch(authActions.signUp(...args)),
         sendResetPassword: (...args) => dispatch(authActions.sendResetPasswordEmail(...args)),
-        processQueryString: (args) => dispatch(authActions.processQueryString(args))
+        processQueryString: (args) => dispatch(authActions.processQueryString(args)),
+        socketSubscribe: () => authActions.socketSubscribe(dispatch)
     };
 }
 

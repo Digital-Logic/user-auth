@@ -3,16 +3,56 @@ import { STATES as MODEL_STATES } from '../../Models';
 import { ROUTES } from '../../Routes';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import { SOCKET_ACTIONS } from '../SocketMiddleware';
+
+/**
+ *
+ */
+function socketSubscribe(dispatch) {
+
+    const handlers = [ACTIONS.SYNC_AUTH_SUBSCRIBE_SUCCESS,
+        ACTIONS.SYNC_AUTH_LOGOUT].map( event => ([
+        event,
+        dispatch({
+            type: SOCKET_ACTIONS.SUBSCRIBE,
+            event
+        })
+    ]));
+
+    return () => {
+        handlers.forEach(
+            ([event, handle]) =>
+                dispatch({
+                    type: SOCKET_ACTIONS.UNSUBSCRIBE,
+                    event,
+                    handle
+                })
+        );
+    }
+}
+
+function syncAuthUpdate(user) {
+    return dispatch =>{
+        dispatch({
+            type: SOCKET_ACTIONS.EMIT,
+            event: ACTIONS.SYNC_AUTH_SUBSCRIBE,
+            data: {
+                id: user.id,
+                token: user.tokens.refresh
+            }
+        });
+    }
+}
+
 
 function getAuth() {
-
     return function _getAuth(dispatch) {
         dispatch(request());
-
         return axios.get('/api/auth/sign-in')
-            .then(response => {
-                dispatch(success(response.data));
-                return response.data;
+            .then(({ data: user }) => {
+                dispatch(success(user));
+                dispatch(syncAuthUpdate(user));
+                return user;
             })
             .catch(error => {
                 dispatch(failure(error));
@@ -65,8 +105,10 @@ function signIn({ model, userData }) {
         model.actions.setState(MODEL_STATES.LOADING);
 
         return axios.post('/api/auth/sign-in', userData)
-            .then(response => {
-                dispatch(success(response.data));
+            .then( ({data: user}) => {
+                dispatch(success(user));
+                // Subscribe to sync authentication actions.
+                dispatch(syncAuthUpdate(user));
                 model.actions.setState(MODEL_STATES.CLOSED);
 
                 return {
@@ -74,7 +116,7 @@ function signIn({ model, userData }) {
                 };
             })
             .catch(error => {
-
+                console.log(error);
                 switch(error.response.status) {
 
                     case 403:
@@ -107,6 +149,13 @@ function signOut({ model }) {
 
         return axios.get('/api/auth/sign-out')
             .then(response => {
+
+                // Synchronize logout actions across multiply tabs
+                dispatch({
+                    type: SOCKET_ACTIONS.EMIT,
+                    event: ACTIONS.SYNC_AUTH_LOGOUT
+                });
+
                 dispatch(success());
 
                 model.actions.redirect(ROUTES.HOME);
@@ -285,7 +334,7 @@ function processQueryString({ params, userID, model, path })
             function success() { return { type: ACTIONS.PROCESS_QUERY_TOKEN_SUCCESS }; }
             function failure(error) { return { type: ACTIONS.PROCESS_QUERY_TOKEN_FAILURE, error }; }
 
-            // Process code in query string
+            // Process OAuth authentication code in query string
         } else if (code) {
 
             dispatch(request(code));
@@ -294,23 +343,22 @@ function processQueryString({ params, userID, model, path })
                     code,
                     path
                 })
-                .then(response => {
-                    dispatch(success(response));
-                    return dispatch(getAuth())
-                        .then(() => {
-                            return {
-                                closeModel: true,
-                                redirect: ROUTES.PROFILE
-                            };
-                        });
+                .then(({ data: user }) => {
+                    dispatch(success(user));
+                    // subscribe to Socket.io auth synchronization
+                   // dispatch(syncAuthSessions(user.accessToken.token));
+                    return {
+                        closeModel: true,
+                        redirect: ROUTES.PROFILE
+                    };
                 })
                 .catch(error => {
                     dispatch(failure(error));
                 });
 
-            function request(code) { return { type: ACTIONS.PROCESS_QUERY_CODE_REQUEST, code }; }
-            function success() { return { type: ACTIONS.PROCESS_QUERY_CODE_SUCCESS }; }
-            function failure(error) { return { type: ACTIONS.PROCESS_QUERY_CODE_FAILURE, error }; }
+            function request(code) { return { type: ACTIONS.SIGN_IN_OAUTH_REQUEST, code }; }
+            function success(user) { return { type: ACTIONS.SIGN_IN_OAUTH_SUCCESS, user }; }
+            function failure(error) { return { type: ACTIONS.SIGN_IN_OAUTH_FAILURE, error }; }
         } else {
             // Close the model
             return {
@@ -356,5 +404,6 @@ export {
     changePassword,
     sendResetPasswordEmail,
     processQueryString,
-    sendEmailVerification
+    sendEmailVerification,
+    socketSubscribe
 };

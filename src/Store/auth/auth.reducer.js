@@ -2,21 +2,25 @@ const ACTIONS = Object.freeze({
     GET_AUTH_REQUEST: 'GET_AUTH_REQUEST',
     GET_AUTH_SUCCESS: 'GET_AUTH_SUCCESS',
     GET_AUTH_FAILURE: 'GET_AUTH_FAILURE',
+    SYNC_AUTH_SUBSCRIBE: 'SYNC_AUTH_SUBSCRIBE',
+    SYNC_AUTH_SUBSCRIBE_SUCCESS: 'SYNC_AUTH_SUBSCRIBE_SUCCESS',
+    SYNC_AUTH_LOGOUT: 'SYNC_AUTH_LOGOUT',
+    //SYNC_AUTH_UPDATE: 'SYNC_AUTH_UPDATE',
     SIGN_UP_REQUEST: 'SIGN_UP_REQUEST',
     SIGN_UP_SUCCESS: 'SIGN_UP_SUCCESS',
     SIGN_UP_FAILURE: 'SIGN_UP_FAILURE',
     SIGN_IN_REQUEST: 'SIGN_IN_REQUEST',
     SIGN_IN_SUCCESS: 'SIGN_IN_SUCCESS',
     SIGN_IN_FAILURE: 'SIGN_IN_FAILURE',
+    SIGN_IN_OAUTH_REQUEST: 'SIGN_IN_OAUTH_REQUEST',
+    SIGN_IN_OAUTH_SUCCESS: 'SIGN_IN_OAUTH_SUCCESS',
+    SIGN_IN_OAUTH_FAILURE: 'SIGN_IN_OAUTH_FAILURE',
     SIGN_OUT_REQUEST: 'SIGN_OUT_REQUEST',
     SIGN_OUT_SUCCESS: 'SIGN_OUT_SUCCESS',
     SIGN_OUT_FAILURE: 'SIGN_OUT_FAILURE',
     PROCESS_QUERY_TOKEN_REQUEST: 'PROCESS_QUERY_TOKEN_REQUEST',
     PROCESS_QUERY_TOKEN_SUCCESS: 'PROCESS_QUERY_TOKEN_SUCCESS',
     PROCESS_QUERY_TOKEN_FAILURE: 'PROCESS_QUERY_TOKEN_FAILURE',
-    PROCESS_QUERY_CODE_REQUEST: 'PROCESS_QUERY_CODE_REQUEST',
-    PROCESS_QUERY_CODE_SUCCESS: 'PROCESS_QUERY_CODE_SUCCESS',
-    PROCESS_QUERY_CODE_FAILURE: 'PROCESS_QUERY_CODE_FAILURE',
     SEND_EMAIL_VERIFICATION_REQUEST: "SEND_EMAIL_VERIFICATION_REQUEST",
     SEND_EMAIL_VERIFICATION_SUCCESS: 'SEND_EMAIL_VERIFICATION_SUCCESS',
     SEND_EMAIL_VERIFICATION_FAILURE: 'SEND_EMAIL_VERIFICATION_FAILURE',
@@ -35,6 +39,8 @@ const initialState = {
     isAuthenticating: true,
     isAuthenticated: false,
     id: null,
+    accessToken: null,
+    refreshToken: null,
     rules: [{
         actions: 'read',
         subject: ['User'],
@@ -61,14 +67,23 @@ function reducer(state=initialState, { type, user }) {
             };
 
         case ACTIONS.SIGN_IN_SUCCESS:
+        case ACTIONS.SIGN_IN_OAUTH_SUCCESS:
         case ACTIONS.GET_AUTH_SUCCESS:
             return {
                 ...state,
                 isAuthenticated: Boolean(user.id),
                 isAuthenticating: false,
                 id: user.id,
+                accessToken: user.tokens.access,
+                refreshToken: user.tokens.refresh,
                 rules: user.rules
-            }
+            };
+
+        case `RECEIVE: ${ACTIONS.SYNC_AUTH_LOGOUT}`:
+            return {
+                ...initialState,
+                isAuthenticating: false
+            };
 
         default:
             return state;
