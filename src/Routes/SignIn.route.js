@@ -120,27 +120,12 @@ function SignIn({ className, classes, signInAction, sendVerificationEmail, histo
     );
 
     function onSubmit(userData) {
-
-        // Create custom actions that the model can use
-        // model.actions.createActions({
-        //     sendVerificationEmail: () => {
-        //         sendVerificationEmail({ userData, model})
-        //             .then(({ clearForm }={}) => {
-        //                 if (clearForm)
-        //                     setFormKey(formKey + 1);
-        //             });
-        //     }
-        // });
-
         // Try to sign the user in.
-        signInAction({ userData, createModel, setState, STATES })
-            .then(({clearForm, redirect}={}) => {
-                if (redirect)
-                    history.push(redirect);
-                if (clearForm)
-                    setFormKey(formKey + 1);
-            });
+        signInAction({ userData, createModel, setState, STATES, history, clearForm });
+    }
 
+    function clearForm() {
+        setFormKey(count => count + 1);
     }
 }
 

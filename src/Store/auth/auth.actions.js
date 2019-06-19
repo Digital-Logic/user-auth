@@ -104,35 +104,38 @@ function signUp({ model, userData }) {
     function failure(error) { return { type: ACTIONS.SIGN_UP_FAILURE, error }; }
 }
 
-function signIn({ userData, setState, createModel, STATES }) {
+function signIn({ userData, setState, createModel, STATES, history, clearForm }) {
 
     return function _signIn(dispatch) {
         dispatch(request());
         setState(STATES.SIGNING_IN);
 
-        return axios.post('/api/auth/sign-in', userData)
+        axios.post('/api/auth/sign-in', userData)
             .then( ({data: user}) => {
                 dispatch(success(user));
                 // Subscribe to sync authentication actions.
                 dispatch(syncAuthUpdate(user));
                 setState(MODEL_STATES.CLOSED);
-
-                return {
-                    redirect: ROUTES.PROFILE
-                };
+                history.push(ROUTES.PROFILE);
             })
             .catch(error => {
                 switch(error.response.status) {
                     case 403:
                         dispatch(failure(error));
                         createModel({
-
-                        })
-                        // model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_REQUIRED);
+                            state: 'ACCOUNT_ACTIVATION_REQUIRED',
+                            model: AccountActivationRequired,
+                            actions: {
+                                onSendVerificationEmail:() =>
+                                    dispatch(sendEmailVerification({ userData, setState, createModel, STATES }))
+                            }
+                        });
+                        setState('ACCOUNT_ACTIVATION_REQUIRED');
+                        clearForm();
                         break;
 
                     default:
-                        dispatch(failure(error));
+                        dispatch(failure(error.response.data));
                         setState(STATES.SIGN_IN_FAILED);
                 }
             });
@@ -161,7 +164,7 @@ function signOut({ setState, STATES, history }) {
                 });
 
                 dispatch(success());
-                history.redirect(ROUTES.HOME);
+                history.push(ROUTES.HOME);
                 // Get new authentication
                 return dispatch(getAuth())
                     .then(() => {
@@ -452,10 +455,7 @@ function sendEmailVerification({ userData, setState, createModel, STATES }) {
         return axios.post('/api/auth/validate-email', userData)
             .then(response => {
                 dispatch(success(response));
-
-                return {
-                    clearForm: true
-                };
+                setState('ACCOUNT_ACTIVATION_SENT');
             })
             .catch(error => {
                 dispatch(failure(error));
