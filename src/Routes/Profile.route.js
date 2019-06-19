@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
@@ -8,7 +8,7 @@ import Verified from '@material-ui/icons/VerifiedUser';
 import Grid from '@material-ui/core/Grid';
 import { withAuth } from '../Auth';
 import EditUser from '../Forms/EditUser.form';
-import { withModel, ProfileModel, STATES as MODEL_STATES } from '../Models';
+import { ModelContext, ChangePasswordModel, ChangePasswordFailed, ChangePasswordSuccess, ChangingPassword } from '../Models';
 import compose from 'recompose/compose';
 import IdentityIcon from '@material-ui/icons/PermIdentity';
 import Button from '@material-ui/core/Button';
@@ -46,23 +46,36 @@ function Profile({ className, classes, model, userID, getUser, updateUser,
 
     useEffect(subscribeSocket,[]);
 
+    const { setState, createModel, STATES } = useContext(ModelContext);
+
     useEffect(() => {
         if (userID && userID.match(/^[0-9a-fA-F]{24}$/)) {
-            getUser({ userID, model });
 
-            model.actions.createActions({
-                deleteUser: () => deleteUser({ userID, model}),
-                redirect: path => history.push(path),
-                onCancel: () => model.actions.setState(MODEL_STATES.CLOSED),
-                onClose: model => {
-                    if (model.state !== MODEL_STATES.LOADING &&
-                            model.state !== MODEL_STATES.CHANGE_PASSWORDS_LOADING &&
-                            model.state !== MODEL_STATES.CHANGE_PASSWORDS_FORM &&
-                            model.state !== MODEL_STATES.SIGN_OUT &&
-                            model.state !== MODEL_STATES.CLOSED )
-                        model.actions.setState(MODEL_STATES.CLOSED);
-                },
-                changePassword: (arg) => changePassword(arg)
+            getUser({ userID, setState, STATES });
+
+            createModel({
+                state: 'CHANGE_PASSWORD',
+                model: ChangePasswordModel,
+                actions: {
+                    onChangePassword: changePassword,
+                    onCancel: ({ setState, STATES }) => setState(STATES.CLOSED),
+                    onClose: () => {}
+                }
+            },{
+                state: 'CHANGE_PASSWORD_SUCCESS',
+                model: ChangePasswordSuccess,
+            },{
+                state: "CHANGE_PASSWORD_FAILED",
+                model: ChangePasswordFailed
+            },{
+                state: 'CHANGING_PASSWORD',
+                model: ChangingPassword,
+                actions: {
+                    onClose: ({ state, setState, STATES }) => {
+                        if(state !== 'CHANGING_PASSWORD')
+                            setState(STATES.CLOSED);
+                    }
+                }
             });
         }
 
@@ -100,12 +113,12 @@ function Profile({ className, classes, model, userID, getUser, updateUser,
 
                                 <Button
                                     className={classes.deleteBtn}
-                                    onClick={() => model.actions.setState(MODEL_STATES.CONFIRM_DELETE_USER)}
+                                    // onClick={() => model.actions.setState(MODEL_STATES.CONFIRM_DELETE_USER)}
                                     variant="outlined"><DeleteIcon />Delete Account</Button>
 
                                 <Button
                                     disabled={ !user.authTypes || user.authTypes.indexOf('PWD') === -1}
-                                    onClick={() => model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_FORM)}
+                                    onClick={() => setState(STATES.CHANGE_PASSWORD)}
                                     variant="outlined">Change Password</Button>
                             </Grid>
                         </Grid>
@@ -126,7 +139,7 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
     return {
-        getUser: ({ userID, model }) => dispatch(userActions.getUser({ userID, model })),
+        getUser: (args) => dispatch(userActions.getUser(args)),
         updateUser: (args) => dispatch(userActions.updateUser(args)),
         deleteUser: (args) => dispatch(userActions.deleteUser(args)),
         changePassword: (args) => dispatch(authActions.changePassword(args)),
@@ -137,6 +150,5 @@ function mapDispatch(dispatch) {
 export default compose(
     withStyles(styles),
     withAuth(),
-    connect(mapState, mapDispatch),
-    withModel(ProfileModel)
+    connect(mapState, mapDispatch)
 )(Profile);

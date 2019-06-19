@@ -34,7 +34,7 @@ function App({ classes, isAuthenticated, userID, getAuth, processQueryString,
 
     useEffect(socketSubscribe, []);
 
-    const { setState, state, STATES, createModel } = useContext(ModelContext);
+    const { setState, STATES, createModel } = useContext(ModelContext);
 
     // Initialize app
     useEffect(() => {

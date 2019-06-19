@@ -33,21 +33,21 @@ function subscribeUserSocket(dispatch) {
     };
 }
 
-function getUser({ userID, model }) {
+function getUser({ userID, setState, STATES }) {
 
     return function _getUser(dispatch) {
 
         dispatch(request(userID));
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.LOADING);
 
         return axios.get(`/api/users/${userID}`)
             .then(response => {
                 dispatch(success(response.data));
-                model.actions.setState(MODEL_STATES.CLOSED);
+                setState(STATES.CLOSED);
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.CLOSED);
+                setState(MODEL_STATES.CLOSED);
             });
     };
 
