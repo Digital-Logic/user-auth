@@ -1,6 +1,5 @@
 export { STATES } from './constants';
 export { default as LoadingModel } from './Loading.model';
-export { default as SignUpModel } from './SignUp.model';
 export { default as AppInitModel } from './AppInit.model';
 export { default as ResetPasswordModel } from './ResetPassord.model';
 export { default as ProfileModel } from './Profile.model';
@@ -12,4 +11,6 @@ export { default as InvalidToken } from './InvalidToken';
 export { ResetPassword, ResetPasswordSuccess, SendResetPasswordEmailSuccess, SendResetPasswordEmailFailure,
     ResetPasswordFailed, ResetPasswordTokenInvalid } from './ResetPassword';
 export { SignOut} from './SignOut';
-export { SigningInModel, SignInFailedModel } from './SignIn';
+export { SigningIn, SignInFailed } from './SignIn';
+export { SignUpSuccess, SignUpFailed, DuplicateAccount, CreatingAccount} from './SignUp';
+export { ChangingPassword, ChangePasswordModel, ChangePasswordSuccess, ChangePasswordFailed} from './ChangePassword';

@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { SignUpLink } from './SignUp.route';
 import compose from 'recompose/compose';
 import { withStyles } from '@material-ui/core/styles';
-import { ModelContext, SigningInModel, SignInFailedModel } from '../Models';
+import { ModelContext, SigningIn, SignInFailed } from '../Models';
 import classNames from 'classnames';
 import axios from 'axios';
 import Divider from '@material-ui/core/Divider';
@@ -45,7 +45,7 @@ const styles = theme => ({
     }
 });
 
-function SignIn({ className, classes, signInAction, sendVerificationEmail, history }) {
+function SignIn({ className, classes, signInAction, history }) {
 
     const [formKey, setFormKey] = useState(1);
     const [signInLink, setSignInLink ] = useState({});
@@ -55,10 +55,10 @@ function SignIn({ className, classes, signInAction, sendVerificationEmail, histo
     useEffect(() => {
         createModel({
             state: 'SIGNING_IN',
-            model: SigningInModel,
+            model: SigningIn,
         },{
             state: 'SIGN_IN_FAILED',
-            model: SignInFailedModel
+            model: SignInFailed
         });
 
         axios.get('/api/auth/OAUTH2')
@@ -142,8 +142,7 @@ function SignInLink() {
 
 function mapDispatch(dispatch) {
     return {
-        signInAction: (...args) => dispatch(authActions.signIn(...args)),
-        sendVerificationEmail: (...args) => dispatch(authActions.sendEmailVerification(...args))
+        signInAction: (...args) => dispatch(authActions.signIn(...args))
     };
 }
 
