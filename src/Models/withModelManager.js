@@ -1,7 +1,6 @@
 import React, { createContext, useReducer, useMemo } from 'react';
 import Dialog from '@material-ui/core/Dialog';
-import Loading from './Loading';
-import { AccountActivated } from './index';
+import { AccountActivated, Loading, ErrorModel } from './index';
 
 const ModelContext = createContext();
 
@@ -16,6 +15,7 @@ const MODEL_STATES = {
     CLOSED: 'CLOSED',
     LOADING: 'LOADING',
     ACCOUNT_ACTIVATED: 'ACCOUNT_ACTIVATED',
+    ERROR: 'ERROR'
 };
 
 
@@ -41,7 +41,8 @@ function withModelManager() {
                 [MODEL_STATES.CLOSED]: null,
                 // Generic loading model
                 [MODEL_STATES.LOADING]: Loading,
-                [MODEL_STATES.ACCOUNT_ACTIVATED]: AccountActivated
+                [MODEL_STATES.ACCOUNT_ACTIVATED]: AccountActivated,
+                [MODEL_STATES.ERROR]: ErrorModel
             },
             props: {}
         };

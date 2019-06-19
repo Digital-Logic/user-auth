@@ -125,7 +125,7 @@ function Profile({ className, classes, model, userID, getUser, updateUser,
                             <Grid item>
                                 <EditUser
                                     user={user}
-                                    onSubmit={user => updateUser({ user, model })} />
+                                    onSubmit={user => updateUser({ user, setState, STATES })} />
                             </Grid>
                             <Grid item container justify="space-between">
 

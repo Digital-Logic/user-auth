@@ -14,7 +14,7 @@ const styles = theme => ({
         fontWeight: 500,
         flexGrow: 1,
         textDecoration: 'none',
-        cursor: 'default'
+        cursor: 'pointer'
     }
 });
 

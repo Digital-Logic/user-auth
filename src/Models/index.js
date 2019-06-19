@@ -6,7 +6,7 @@ export { default as ProfileModel } from './Profile.model';
 export { default as withModel } from './withModel';
 export { default as withModelManager, ModelContext } from './withModelManager';
 export { AccountActivated, AccountActivationRequired, AccountActivationSend, AccountActivationFailed } from './AccountActivated';
-export { default as Loading } from './Loading';
+export { Loading, ErrorModel } from './Loading';
 export { default as InvalidToken } from './InvalidToken';
 export { ResetPassword, ResetPasswordSuccess, SendResetPasswordEmailSuccess, SendResetPasswordEmailFailure,
     ResetPasswordFailed, ResetPasswordTokenInvalid } from './ResetPassword';

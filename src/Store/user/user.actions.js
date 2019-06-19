@@ -1,4 +1,3 @@
-import { STATES as MODEL_STATES } from '../../Models';
 import axios from 'axios';
 import { ACTIONS } from './user.reducer';
 import { GLOBAL_ACTIONS } from '../global';
@@ -47,7 +46,7 @@ function getUser({ userID, setState, STATES }) {
             })
             .catch(error => {
                 dispatch(failure(error));
-                setState(MODEL_STATES.CLOSED);
+                setState(STATES.CLOSED);
             });
     };
 
@@ -56,11 +55,11 @@ function getUser({ userID, setState, STATES }) {
     function failure(error) { return { type: ACTIONS.GET_USER_FAILURE, error }; }
 }
 
-function updateUser({ user, model }) {
+function updateUser({ user, setState, STATES }) {
 
     return function _updateUser(dispatch) {
         dispatch(request(user));
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.LOADING);
 
         return axios.put(`/api/users/${user._id}`, user)
             .then(response => {
@@ -70,11 +69,12 @@ function updateUser({ user, model }) {
                     event: ACTIONS.SYNC_USER_INFO,
                     data: response.data
                 });
-                model.actions.setState(MODEL_STATES.CLOSED);
+
+                setState(STATES.CLOSED);
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.FAILURE);
+                setState(STATES.ERROR, { message: error.message });
             });
     };
 
@@ -114,7 +114,7 @@ function deleteUser({ userID, setState, STATES, history }) {
                             rules
                         });
 
-                        setState(STATES.DELETE_ACCOUNT_SUCCESS);
+                        setState(STATES.ERROR, { message: error.message });
                     });
             });
     };
