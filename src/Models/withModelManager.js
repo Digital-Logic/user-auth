@@ -143,6 +143,9 @@ function reducer(state, { type, newState, key, model, actions, props }) {
 
 
 function createModel({ state: key, model, actions={} }) {
+    if (model === null || ( typeof model !== 'function' && typeof model !== 'object'))
+        throw new TypeError(`Invalid type of model: ${key} : ${typeof model}`);
+
     return {
         type: ACTIONS.CREATE_MODEL,
         key,
