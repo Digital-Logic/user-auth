@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '../Routes';
 import { ModelContext } from '../Models'
 import { SignUpLink } from './SignUp.route'
-import compose from 'recompose/compose';
 
 function ResetPassword({ className, sendResetPassword, history }) {
 

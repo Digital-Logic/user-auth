@@ -272,6 +272,7 @@ function processQueryString({ params, userID, setState, createModel, STATES, pat
     return function _processQueryString (dispatch) {
         const { token, code } = params;
 
+        history.replace(path);
         // Process JWT token in query string
         if (token)
         {
@@ -399,10 +400,9 @@ function processQueryString({ params, userID, setState, createModel, STATES, pat
                     dispatch(success(user));
                     // subscribe to Socket.io auth synchronization
                     dispatch(syncAuthUpdate(user));
-
+                    history.push(ROUTES.PROFILE);
                     return {
-                        closeModel: true,
-                        redirect: ROUTES.PROFILE
+                        closeModel: true
                     };
                 })
                 .catch(error => {
