@@ -8,7 +8,8 @@ import Verified from '@material-ui/icons/VerifiedUser';
 import Grid from '@material-ui/core/Grid';
 import { withAuth } from '../Auth';
 import EditUser from '../Forms/EditUser.form';
-import { ModelContext, ChangePasswordModel, ChangePasswordFailed, ChangePasswordSuccess, ChangingPassword } from '../Models';
+import { ModelContext, ChangePasswordModel, ChangePasswordFailed, ChangePasswordSuccess,
+    ChangingPassword, ConfirmDeleteAccount, DeletingAccount, DeleteAccountSuccess, DeleteAccountFailed } from '../Models';
 import compose from 'recompose/compose';
 import IdentityIcon from '@material-ui/icons/PermIdentity';
 import Button from '@material-ui/core/Button';
@@ -63,7 +64,7 @@ function Profile({ className, classes, model, userID, getUser, updateUser,
                 }
             },{
                 state: 'CHANGE_PASSWORD_SUCCESS',
-                model: ChangePasswordSuccess,
+                model: ChangePasswordSuccess
             },{
                 state: "CHANGE_PASSWORD_FAILED",
                 model: ChangePasswordFailed
@@ -76,12 +77,29 @@ function Profile({ className, classes, model, userID, getUser, updateUser,
                             setState(STATES.CLOSED);
                     }
                 }
+            },{
+                state: 'CONFIRM_DELETE_ACCOUNT',
+                model: ConfirmDeleteAccount,
+                actions: {
+                    onDeleteUser: ({ state, setState, STATES }) => deleteUser({ state, setState, STATES, userID, history})
+                }
+            },{
+                state: 'DELETING_ACCOUNT',
+                model: DeletingAccount,
+                actions: {
+                    onClose: () => {}
+                }
+            },{
+                state: 'DELETE_ACCOUNT_SUCCESS',
+                model: DeleteAccountSuccess
+            },{
+                state: 'DELETE_ACCOUNT_FAILED',
+                model: DeleteAccountFailed
             });
         }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[userID]);
-
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -113,7 +131,7 @@ function Profile({ className, classes, model, userID, getUser, updateUser,
 
                                 <Button
                                     className={classes.deleteBtn}
-                                    // onClick={() => model.actions.setState(MODEL_STATES.CONFIRM_DELETE_USER)}
+                                    onClick={() => setState(STATES.CONFIRM_DELETE_ACCOUNT)}
                                     variant="outlined"><DeleteIcon />Delete Account</Button>
 
                                 <Button

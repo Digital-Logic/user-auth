@@ -83,35 +83,39 @@ function updateUser({ user, model }) {
     function failure(error) { return { type: ACTIONS.UPDATE_USER_FAILURE, error }; }
 }
 
-function deleteUser({ userID, model }) {
+function deleteUser({ userID, setState, STATES, history }) {
 
     return function _deleteUser(dispatch) {
         dispatch(request(userID));
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.DELETING_ACCOUNT);
 
         return axios.delete(`/api/users/${userID}`)
             .then(response => {
                 dispatch(success(userID));
 
-                model.actions.createActions({
-                    onClose: model => {
-                        model.actions.redirect(ROUTES.HOME);
-                        dispatch(authActions.getAuth())
-                            .then(({ rules }) => {
-                                console.log(rules)
-                                dispatch({
-                                    type: GLOBAL_ACTIONS.AUTH_PURGE,
-                                    rules
-                                });
-                            });
-                    }
-                });
+                history.push(ROUTES.HOME);
+                dispatch(authActions.getAuth())
+                    .then(({ rules }) => {
+                        dispatch({
+                            type: GLOBAL_ACTIONS.AUTH_PURGE,
+                            rules
+                        });
 
-                model.actions.setState(MODEL_STATES.DELETE_ACCOUNT_SUCCESS);
+                        setState(STATES.DELETE_ACCOUNT_SUCCESS);
+                    });
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.DELETE_ACCOUNT_FAILURE);
+                setState(STATES.DELETE_ACCOUNT_FAILED);
+                dispatch(authActions.getAuth())
+                    .then(({ rules }) => {
+                        dispatch({
+                            type: GLOBAL_ACTIONS.AUTH_PURGE,
+                            rules
+                        });
+
+                        setState(STATES.DELETE_ACCOUNT_SUCCESS);
+                    });
             });
     };
 

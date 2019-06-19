@@ -14,3 +14,4 @@ export { SignOut} from './SignOut';
 export { SigningIn, SignInFailed } from './SignIn';
 export { SignUpSuccess, SignUpFailed, DuplicateAccount, CreatingAccount} from './SignUp';
 export { ChangingPassword, ChangePasswordModel, ChangePasswordSuccess, ChangePasswordFailed} from './ChangePassword';
+export { ConfirmDeleteAccount, DeleteAccountSuccess, DeletingAccount, DeleteAccountFailed } from './DeleteUser'
