@@ -83,7 +83,6 @@ function SignUpLink() {
                 color="primary"
                 to={ROUTES.SIGN_UP}
                 component={Link}>Create an account</Button>
-
         </Typography>
     );
 }

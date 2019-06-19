@@ -82,7 +82,6 @@ function signUp({ setState, STATES, userData, history, clearForm }) {
                 dispatch(success(response.data));
                 setState(STATES.SIGN_UP_SUCCESS);
                 history.push(ROUTES.HOME);
-                clearForm();
             })
             .catch(error => {
                 dispatch(failure(error));
