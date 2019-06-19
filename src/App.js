@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import compose from 'recompose/compose';
 import applyTheme from './applyTheme';
 import { withStyles } from '@material-ui/core/styles';
@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { ROUTES, Home, Profile, SignIn, SignUp, ResetPassword, NotFound } from './Routes';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import AppBar from './Components/AppBar';
-import { AppInitModel, STATES as MODEL_STATES, withModel } from './Models';
+import { withModelManager, ModelContext, SignOut } from './Models';
 import { connect } from 'react-redux';
 import { authActions } from './Store';
 import queryString from 'query-string';
@@ -28,50 +28,36 @@ const styles = theme => ({
 });
 
 
-function App({ classes, isAuthenticated, userID, model, getAuth, processQueryString,
+function App({ classes, isAuthenticated, userID, getAuth, processQueryString,
         signOut, signUp, sendResetPassword, getUser, history, location, socketSubscribe }) {
 
 
     useEffect(socketSubscribe, []);
 
+    const { setState, state, STATES, createModel } = useContext(ModelContext);
+
     // Initialize app
     useEffect(() => {
         // Process query string tokens
         const params = queryString.parse(location.search);
-        model.actions.createActions({
-            redirect: path => {
-                history.push(path); // Redirect to url
-            },
-            // Override onClose action so the user does not accidentally close model during
-            // password reset,
-            onClose: model => {
-                if (model.state !== MODEL_STATES.LOADING &&
-                        model.state !== MODEL_STATES.SIGN_OUT &&
-                        model.state !== MODEL_STATES.RESET_PASSWORD &&
-                        model.state !== MODEL_STATES.CLOSED )
-                    model.actions.setState(MODEL_STATES.CLOSED);
-            },
-            onCancel: model => {
-                model.actions.setState(MODEL_STATES.CLOSED);
-            }
-        });
 
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.LOADING);
+
+        createModel({
+            state: 'LOG_OUT',
+            model: SignOut
+        });
 
         Promise.all([
             getAuth(),
-            processQueryString({ params, userID, model, path: location.pathname })
+            processQueryString({ params, setState, STATES, createModel, userID, path: location.pathname })
         ])
-        .then(([authResponse, tokenResponse={}])=> {
-            if ( tokenResponse.closeModel )
-                model.actions.setState(MODEL_STATES.CLOSED);
+        .then(([authResponse, tokenResponse = {}]) => {
+            if (tokenResponse.closeModel)
+                setState(STATES.CLOSED);
 
-            // Clear query string
-            history.replace(location.path);
-
-            // Redirect and clear query string
-            if ( tokenResponse.redirect)
-                history.replace(tokenResponse.redirect)
+            if (tokenResponse.redirect)
+                history.replace(tokenResponse.redirect);
         });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,7 +67,7 @@ function App({ classes, isAuthenticated, userID, model, getAuth, processQueryStr
         <div className={classes.root}>
             <AppBar
                 isAuthenticated={isAuthenticated}
-                signOut={ () => signOut({ model }) }
+                signOut={ () => signOut({ setState, STATES, history})}
                 />
 
             <div className={classes.spacer} />
@@ -141,6 +127,6 @@ export default compose(
     applyTheme,
     withStyles(styles),
     withRouter,
-    withModel(AppInitModel),
+    withModelManager(),
     connect(mapState, mapDispatch)
 )(App);

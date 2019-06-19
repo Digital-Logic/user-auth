@@ -4,6 +4,10 @@ import { ROUTES } from '../../Routes';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { SOCKET_ACTIONS } from '../SocketMiddleware';
+import { InvalidToken, AccountActivationSend, AccountActivationFailed,
+        ResetPassword, ResetPasswordSuccess, ResetPasswordFailed,
+        ResetPasswordTokenInvalid, SendResetPasswordEmailSuccess,
+        SendResetPasswordEmailFailure, AccountActivationRequired } from '../../Models';
 
 /**
  *
@@ -100,37 +104,36 @@ function signUp({ model, userData }) {
     function failure(error) { return { type: ACTIONS.SIGN_UP_FAILURE, error }; }
 }
 
-function signIn({ model, userData }) {
+function signIn({ userData, setState, createModel, STATES }) {
 
     return function _signIn(dispatch) {
         dispatch(request());
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.SIGNING_IN);
 
         return axios.post('/api/auth/sign-in', userData)
             .then( ({data: user}) => {
                 dispatch(success(user));
                 // Subscribe to sync authentication actions.
                 dispatch(syncAuthUpdate(user));
-                model.actions.setState(MODEL_STATES.CLOSED);
+                setState(MODEL_STATES.CLOSED);
 
                 return {
                     redirect: ROUTES.PROFILE
                 };
             })
             .catch(error => {
-                console.log(error);
                 switch(error.response.status) {
-
                     case 403:
                         dispatch(failure(error));
-                        model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_REQUIRED);
+                        createModel({
+
+                        })
+                        // model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_REQUIRED);
                         break;
 
                     default:
                         dispatch(failure(error));
-                        model.actions.setState(MODEL_STATES.FAILURE);
-                        // model.setErrorMessage(typeof error.response.data === 'string' ?
-                        //     error.response.data : JSON.stringify(error.response.data));
+                        setState(STATES.SIGN_IN_FAILED);
                 }
             });
     };
@@ -142,12 +145,11 @@ function signIn({ model, userData }) {
 }
 
 
-function signOut({ model }) {
+function signOut({ setState, STATES, history }) {
     return function _signOut(dispatch) {
         dispatch(request());
 
-        model.actions.setState(MODEL_STATES.SIGN_OUT);
-
+        setState(STATES.LOADING);
 
         return axios.get('/api/auth/sign-out')
             .then(response => {
@@ -159,17 +161,16 @@ function signOut({ model }) {
                 });
 
                 dispatch(success());
-
-                model.actions.redirect(ROUTES.HOME);
+                history.redirect(ROUTES.HOME);
                 // Get new authentication
                 return dispatch(getAuth())
                     .then(() => {
-                        model.actions.setState(MODEL_STATES.CLOSED);
+                        setState(STATES.CLOSED);
                     });
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.CLOSED);
+                setState(MODEL_STATES.CLOSED);
             });
     }
 
@@ -178,20 +179,19 @@ function signOut({ model }) {
     function failure(error) { return { type: ACTIONS.SIGN_OUT_FAILURE, error }; }
 }
 
-function resetPassword({ token, pwd, model }) {
+function resetPassword({ token, pwd, state, setState, STATES }) {
     return function _resetPassword(dispatch) {
         dispatch(request());
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.LOADING);
 
         return axios.post('/api/auth/reset-password', { token, pwd })
             .then(response => {
                 dispatch(success());
-                model.actions.setState(MODEL_STATES.RESET_PASSWORD_SUCCESS);
-                model.actions.redirect(ROUTES.SIGN_IN);
+                    setState(STATES.RESET_PASSWORD_SUCCESS);
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.RESET_PASSWORD_FAILURE);
+                setState(STATES.RESET_PASSWORD_FAILED);
             });
     }
 
@@ -223,32 +223,35 @@ function changePassword({ pwd, newPwd, model }) {
     function failure(error) { return { type: ACTIONS.CHANGE_PASSWORD_FAILURE, error}; }
 }
 
-function sendResetPasswordEmail({ userData, model }) {
+function sendResetPasswordEmail({ userData, setState, state, createModel, STATES }) {
 
     return function _resetPassword(dispatch) {
 
         dispatch(request());
-        model.actions.setState(MODEL_STATES.LOADING);
+        setState(STATES.LOADING);
+
+        createModel([{
+            state: 'SEND_RESET_PASSWORD_SUCCESS',
+            model: SendResetPasswordEmailSuccess
+        },{
+            state: 'SEND_RESET_PASSWORD_FAILURE',
+            model: SendResetPasswordEmailFailure,
+            actions: {
+                onSendEmailVerification: () =>
+                    dispatch(sendEmailVerification({ userData, setState, createModel, STATES }))
+            }
+        }]);
 
         return axios.post('/api/auth/reset-password-request', userData)
             .then(response => {
                 dispatch(success());
-                model.actions.setState(MODEL_STATES.SEND_RESET_PASSWORD_SUCCESS);
+
+                setState('SEND_RESET_PASSWORD_SUCCESS');
             })
             .catch(error => {
                 dispatch(failure(error));
 
-                model.actions.createActions({
-                    onSendEmailVerification: () =>
-                            dispatch(sendEmailVerification({ userData, model }))
-                });
-
-                model.actions.setMessage({
-                    [MODEL_STATES.RESET_PASSWORD_FAILURE]: typeof error.response.data === 'string' ? error.response.data :
-                        JSON.stringify(error.response.data)
-                });
-
-                model.actions.setState(MODEL_STATES.RESET_PASSWORD_FAILURE);
+                setState('SEND_RESET_PASSWORD_FAILURE', { message: error.response.data });
             });
     };
 
@@ -257,7 +260,7 @@ function sendResetPasswordEmail({ userData, model }) {
     function failure(error) { return { type: ACTIONS.SEND_RESET_PASSWORD_FAILURE, error }; }
 }
 
-function processQueryString({ params, userID, model, path })
+function processQueryString({ params, userID, setState, createModel, STATES, path })
 {
     const TOKEN_TYPE = Object.freeze({
         VERIFY_EMAIL: "VERIFY_EMAIL",
@@ -275,7 +278,9 @@ function processQueryString({ params, userID, model, path })
             // Check if the current user's id is the same as the,
             // userID in the jwt token, if it is ignore the request
             if (userID && userID === id) {
-                return;
+                return {
+                    closeModel: true
+                };
             }
 
             dispatch(request(type));
@@ -283,25 +288,36 @@ function processQueryString({ params, userID, model, path })
             if (type === TOKEN_TYPE.VERIFY_EMAIL) {
                 return axios.post('/api/auth/validate-token', { token })
                     .then(response => {
-
                         if (response.status === 200) {
                             dispatch(success());
-                            model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATED);
+                            setState(STATES.ACCOUNT_ACTIVATED);
+
+                            return {
+                                closeModel: false
+                            };
                         }
 
                         return {
-                            closeModel: false,
+                            closeModel: true,
                         };
                     })
                     .catch(error => {
                         dispatch(failure(error));
-                        model.actions.createActions({
-                            onSendEmailVerification: () =>
-                                dispatch(sendEmailVerification({ userData: { id }, model }))
+                        createModel({
+                            state: 'INVALID_TOKEN_EMAIL_TOKEN',
+                            model: InvalidToken,
+                            actions: {
+                                onSendEmailVerification: () =>
+                                    dispatch(sendEmailVerification({
+                                        userData: { id },
+                                        setState,
+                                        createModel,
+                                        STATES })
+                                    )
+                            }
                         });
 
-                        model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_TOKEN_INVALID);
-
+                        setState('INVALID_TOKEN_EMAIL_TOKEN');
                         return {
                             closeModel: false
                         };
@@ -311,24 +327,54 @@ function processQueryString({ params, userID, model, path })
                 dispatch(request(type));
                 return axios.post('/api/auth/validate-token', { token })
                     .then(response => {
-                        dispatch(success());
 
-                        model.actions.createActions({
-                            onResetPassword: ({ model, pwd }) => {
-                                dispatch(resetPassword({ model, token, pwd }))
+                        dispatch(success(response.data));
+
+                        createModel([{
+                            state: 'RESET_PASSWORD_FORM',
+                            model: ResetPassword,
+                            actions: {
+                                onClose: ({ state, setState }) => {
+                                    if (state !== 'RESET_PASSWORD_FORM') {
+                                        setState(MODEL_STATES.CLOSED);
+                                    }
+                                },
+                                onCancel: ({ state, setState}) => {
+                                    setState(MODEL_STATES.CLOSED);
+                                },
+                                onResetPassword: ({ state, setState, STATES, pwd }) => {
+                                    dispatch(resetPassword({ token, state, setState, createModel, STATES, pwd}));
+                                }
                             }
-                        });
+                        },{
+                            state: 'RESET_PASSWORD_SUCCESS',
+                            model: ResetPasswordSuccess,
+                            actions: {
+                                onClose: ({state, setState, history }) => {
+                                    setState(MODEL_STATES.CLOSED);
+                                    history.push(ROUTES.SIGN_IN);
+                                }
+                            }
+                        },{
+                            state: 'RESET_PASSWORD_FAILED',
+                            model: ResetPasswordFailed
+                        }]);
 
-                        model.actions.setState(MODEL_STATES.RESET_PASSWORD);
+                        setState('RESET_PASSWORD_FORM');
                     })
                     .catch(error => {
+
                         dispatch(failure(error));
-                        model.actions.createActions({
-                            sendResetPassword: () => {
-                                dispatch(sendResetPasswordEmail({ userData: { id }, model }))
+                        createModel({
+                            state: "RESET_PASSWORD_TOKEN_INVALID",
+                            model: ResetPasswordTokenInvalid,
+                            actions: {
+                                onResend:({ setState, state, actions, STATES }) =>
+                                    dispatch(sendResetPasswordEmail({ userData: { id}, setState, state, actions, STATES }))
                             }
                         });
-                        model.actions.setState(MODEL_STATES.RESET_PASSWORD_TOKEN_INVALID);
+
+                        setState('RESET_PASSWORD_TOKEN_INVALID');
                     });
             }
 
@@ -348,7 +394,8 @@ function processQueryString({ params, userID, model, path })
                 .then(({ data: user }) => {
                     dispatch(success(user));
                     // subscribe to Socket.io auth synchronization
-                   // dispatch(syncAuthSessions(user.accessToken.token));
+                    dispatch(syncAuthUpdate(user));
+
                     return {
                         closeModel: true,
                         redirect: ROUTES.PROFILE
@@ -370,16 +417,41 @@ function processQueryString({ params, userID, model, path })
     }
 }
 
-function sendEmailVerification({ userData, model }) {
+function sendEmailVerification({ userData, setState, createModel, STATES }) {
     return function _sendEmailVerification(dispatch) {
         dispatch(request(userData));
 
-        model.actions.setState(MODEL_STATES.LOADING);
+        createModel([{
+            state: 'ACCOUNT_ACTIVATION_SENT',
+            model: AccountActivationSend,
+            actions: {
+                onSendEmailVerification: () =>
+                    dispatch(sendEmailVerification({
+                        userData,
+                        setState,
+                        createModel,
+                        STATES })
+                    )
+            }
+        },{
+            state: 'ACCOUNT_ACTIVATION_FAILED',
+            model: AccountActivationFailed,
+            actions: {
+                onSendEmailVerification: () =>
+                    dispatch(sendEmailVerification({
+                        userData,
+                        setState,
+                        createModel,
+                        STATES })
+                    )
+            }
+        }]);
+
+        setState(MODEL_STATES.LOADING);
 
         return axios.post('/api/auth/validate-email', userData)
             .then(response => {
                 dispatch(success(response));
-                model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_SEND);
 
                 return {
                     clearForm: true
@@ -387,7 +459,7 @@ function sendEmailVerification({ userData, model }) {
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.ACCOUNT_ACTIVATION_FAILURE);
+                setState('ACCOUNT_ACTIVATION_FAILED');
             });
     }
 

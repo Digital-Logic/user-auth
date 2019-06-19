@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -7,12 +7,12 @@ import SignInForm from '../Forms/SignIn.form';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { authActions } from '../Store';
-import { STATES as MODEL_STATES, SignInModel, withModel } from '../Models';
 import { ROUTES } from '../Routes';
 import { Link } from 'react-router-dom';
 import { SignUpLink } from './SignUp.route';
 import compose from 'recompose/compose';
 import { withStyles } from '@material-ui/core/styles';
+import { ModelContext, SigningInModel, SignInFailedModel } from '../Models';
 import classNames from 'classnames';
 import axios from 'axios';
 import Divider from '@material-ui/core/Divider';
@@ -45,14 +45,22 @@ const styles = theme => ({
     }
 });
 
-function SignIn({ className, classes, model, signInAction, sendVerificationEmail, history }) {
+function SignIn({ className, classes, signInAction, sendVerificationEmail, history }) {
 
     const [formKey, setFormKey] = useState(1);
-    const [errorMessage, setErrorMessage] = useState();
     const [signInLink, setSignInLink ] = useState({});
 
+    const { setState, createModel, STATES } = useContext(ModelContext);
 
     useEffect(() => {
+        createModel({
+            state: 'SIGNING_IN',
+            model: SigningInModel,
+        },{
+            state: 'SIGN_IN_FAILED',
+            model: SignInFailedModel
+        });
+
         axios.get('/api/auth/OAUTH2')
             .then(result => {
                 setSignInLink(result.data);
@@ -111,25 +119,21 @@ function SignIn({ className, classes, model, signInAction, sendVerificationEmail
         </Grid>
     );
 
-    function responseFacebook(response) {
-        console.log(response);
-    }
-
     function onSubmit(userData) {
 
         // Create custom actions that the model can use
-        model.actions.createActions({
-            sendVerificationEmail: () => {
-                sendVerificationEmail({ userData, model})
-                    .then(({ clearForm }={}) => {
-                        if (clearForm)
-                            setFormKey(formKey + 1);
-                    });
-            }
-        });
+        // model.actions.createActions({
+        //     sendVerificationEmail: () => {
+        //         sendVerificationEmail({ userData, model})
+        //             .then(({ clearForm }={}) => {
+        //                 if (clearForm)
+        //                     setFormKey(formKey + 1);
+        //             });
+        //     }
+        // });
 
         // Try to sign the user in.
-        signInAction({ userData, model })
+        signInAction({ userData, createModel, setState, STATES })
             .then(({clearForm, redirect}={}) => {
                 if (redirect)
                     history.push(redirect);
@@ -160,8 +164,7 @@ function mapDispatch(dispatch) {
 
 export default compose(
     withStyles(styles),
-    connect(null, mapDispatch),
-    withModel(SignInModel)
+    connect(null, mapDispatch)
 )(SignIn);
 
 export {
