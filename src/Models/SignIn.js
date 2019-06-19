@@ -8,7 +8,7 @@ import Progress from '../UI/Progress';
 import Button from '@material-ui/core/Button';
 
 
-function SigningInModel({ onClose }) {
+function SigningIn({ onClose }) {
     return  (
         <Fragment>
             <DialogTitle align="center">Signing In</DialogTitle>
@@ -24,7 +24,7 @@ function SigningInModel({ onClose }) {
     );
 }
 
-function SignInFailedModel({ onClose, message }) {
+function SignInFailed({ onClose, message }) {
     return  (
         <Fragment>
             <DialogTitle align="center">Sign In Failure</DialogTitle>
@@ -44,6 +44,6 @@ function SignInFailedModel({ onClose, message }) {
 
 
 export {
-    SigningInModel,
-    SignInFailedModel
+    SigningIn,
+    SignInFailed
 };
