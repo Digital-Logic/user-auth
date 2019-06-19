@@ -1,5 +1,4 @@
 import { ACTIONS } from './auth.reducer';
-import { STATES as MODEL_STATES } from '../../Models';
 import { ROUTES } from '../../Routes';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
@@ -7,7 +6,8 @@ import { SOCKET_ACTIONS } from '../SocketMiddleware';
 import { InvalidToken, AccountActivationSend, AccountActivationFailed,
         ResetPassword, ResetPasswordSuccess, ResetPasswordFailed,
         ResetPasswordTokenInvalid, SendResetPasswordEmailSuccess,
-        SendResetPasswordEmailFailure, AccountActivationRequired } from '../../Models';
+        SendResetPasswordEmailFailure, AccountActivationRequired,
+        STATES as MODEL_STATES } from '../../Models';
 
 /**
  *
@@ -70,31 +70,29 @@ function getAuth() {
     function failure(error) { return { type: ACTIONS.GET_AUTH_FAILURE, error }; }
 }
 
-function signUp({ model, userData }) {
+function signUp({ setState, STATES, userData, history, clearForm }) {
 
     return function _signUp(dispatch) {
+
+        setState(STATES.CREATING_ACCOUNT);
         dispatch(request());
-        model.actions.setState(MODEL_STATES.SIGN_OUT);
 
         return axios.post('/api/auth/sign-up', userData)
             .then(response => {
                 dispatch(success(response.data));
-                model.actions.setState(MODEL_STATES.SUCCESS);
-
-                return {
-                    clearForm: true
-                };
+                setState(STATES.SIGN_UP_SUCCESS);
+                history.push(ROUTES.HOME);
+                clearForm();
             })
             .catch(error => {
                 dispatch(failure(error));
 
                 switch(error.response.status) {
                     case 409:
-                        model.actions.setState(MODEL_STATES.DUPLICATE_ACCOUNT);
+                        setState(STATES.DUPLICATE_ACCOUNT);
                         break;
                     default:
-                        //model.setErrorMessage(error.response.data || "Unknown error occurred");
-                        model.actions.setState(MODEL_STATES.FAILURE);
+                        setState(STATES.SIGN_UP_FAILED);
                 }
             });
     }
@@ -115,10 +113,11 @@ function signIn({ userData, setState, createModel, STATES, history, clearForm })
                 dispatch(success(user));
                 // Subscribe to sync authentication actions.
                 dispatch(syncAuthUpdate(user));
-                setState(MODEL_STATES.CLOSED);
+                setState(STATES.CLOSED);
                 history.push(ROUTES.PROFILE);
             })
             .catch(error => {
+                console.log(error);
                 switch(error.response.status) {
                     case 403:
                         dispatch(failure(error));
@@ -173,7 +172,7 @@ function signOut({ setState, STATES, history }) {
             })
             .catch(error => {
                 dispatch(failure(error));
-                setState(MODEL_STATES.CLOSED);
+                setState(STATES.CLOSED);
             });
     }
 
@@ -203,21 +202,21 @@ function resetPassword({ token, pwd, state, setState, STATES }) {
     function failure(error) { return { type: ACTIONS.RESET_PASSWORD_FAILURE, error }; }
 }
 
-function changePassword({ pwd, newPwd, model }) {
+function changePassword({ pwd, newPwd, setState, STATES }) {
     return function _changePassword(dispatch) {
         dispatch(request(newPwd));
-        model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_LOADING);
+        setState(STATES.CHANGING_PASSWORD);
 
         return axios.post('/api/auth/change-password', {
                 password: pwd,
                 newPassword: newPwd
             }).then(response => {
                 dispatch(success());
-                model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_SUCCESS);
+                setState(STATES.CHANGE_PASSWORD_SUCCESS);
             })
             .catch(error => {
                 dispatch(failure(error));
-                model.actions.setState(MODEL_STATES.CHANGE_PASSWORDS_FAILURE);
+                setState(STATES.CHANGE_PASSWORD_FAILED);
             });
 
     }
