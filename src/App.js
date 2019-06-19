@@ -50,14 +50,11 @@ function App({ classes, isAuthenticated, userID, getAuth, processQueryString,
 
         Promise.all([
             getAuth(),
-            processQueryString({ params, setState, STATES, createModel, userID, path: location.pathname })
+            processQueryString({ params, setState, STATES, createModel, userID, path: location.pathname, history })
         ])
         .then(([authResponse, tokenResponse = {}]) => {
             if (tokenResponse.closeModel)
                 setState(STATES.CLOSED);
-
-            if (tokenResponse.redirect)
-                history.replace(tokenResponse.redirect);
         });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

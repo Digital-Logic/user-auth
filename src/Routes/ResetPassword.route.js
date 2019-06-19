@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -7,13 +7,14 @@ import Grid from '@material-ui/core/Grid';
 import SendResetPasswordForm from '../Forms/SendResetPasswordEmail.form';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../Routes';
-import { ResetPasswordModel, withModel } from '../Models'
+import { ModelContext } from '../Models'
 import { SignUpLink } from './SignUp.route'
 import compose from 'recompose/compose';
 
-function ResetPassword({ model, className, sendResetPassword, history }) {
+function ResetPassword({ className, sendResetPassword, history }) {
 
     const [formKey, setFormKey ] = useState(1);
+    const { setState, createModel, STATES } = useContext(ModelContext)
 
     return (
         <Grid container direction="column" alignItems="center" spacing={16}>
@@ -37,10 +38,10 @@ function ResetPassword({ model, className, sendResetPassword, history }) {
     );
 
     function _onSubmit(userData) {
-        sendResetPassword({ userData, model })
-            .then(() => {
-                setFormKey(formKey + 1);
-            });
+        sendResetPassword({ userData,setState, STATES, createModel, resetForm });
+    }
+    function resetForm() {
+        setFormKey(cur => cur + 1);
     }
 }
 
@@ -58,9 +59,7 @@ function ResetPasswordLink() {
     );
 }
 
-export default compose(
-    withModel( ResetPasswordModel )
-)(ResetPassword);
+export default ResetPassword;
 
 export {
     ResetPasswordLink

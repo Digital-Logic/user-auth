@@ -224,7 +224,7 @@ function changePassword({ pwd, newPwd, setState, STATES }) {
     function failure(error) { return { type: ACTIONS.CHANGE_PASSWORD_FAILURE, error}; }
 }
 
-function sendResetPasswordEmail({ userData, setState, state, createModel, STATES }) {
+function sendResetPasswordEmail({ userData, setState, createModel, STATES, resetForm }) {
 
     return function _resetPassword(dispatch) {
 
@@ -246,7 +246,7 @@ function sendResetPasswordEmail({ userData, setState, state, createModel, STATES
         return axios.post('/api/auth/reset-password-request', userData)
             .then(response => {
                 dispatch(success());
-
+                resetForm();
                 setState('SEND_RESET_PASSWORD_SUCCESS');
             })
             .catch(error => {
@@ -261,7 +261,7 @@ function sendResetPasswordEmail({ userData, setState, state, createModel, STATES
     function failure(error) { return { type: ACTIONS.SEND_RESET_PASSWORD_FAILURE, error }; }
 }
 
-function processQueryString({ params, userID, setState, createModel, STATES, path })
+function processQueryString({ params, userID, setState, createModel, STATES, path, history })
 {
     const TOKEN_TYPE = Object.freeze({
         VERIFY_EMAIL: "VERIFY_EMAIL",
@@ -298,6 +298,8 @@ function processQueryString({ params, userID, setState, createModel, STATES, pat
                             };
                         }
 
+                        history.replace(ROUTES.HOME);
+
                         return {
                             closeModel: true,
                         };
@@ -319,16 +321,17 @@ function processQueryString({ params, userID, setState, createModel, STATES, pat
                         });
 
                         setState('INVALID_TOKEN_EMAIL_TOKEN');
+                        history.replace(ROUTES.HOME);
                         return {
-                            closeModel: false
+                            closeModel: false,
                         };
 
                     });
             } else if (type === TOKEN_TYPE.RESET_PASSWORD) {
+
                 dispatch(request(type));
                 return axios.post('/api/auth/validate-token', { token })
                     .then(response => {
-
                         dispatch(success(response.data));
 
                         createModel([{
