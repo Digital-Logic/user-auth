@@ -6,8 +6,7 @@ import { SOCKET_ACTIONS } from '../SocketMiddleware';
 import { InvalidToken, AccountActivationSend, AccountActivationFailed,
         ResetPassword, ResetPasswordSuccess, ResetPasswordFailed,
         ResetPasswordTokenInvalid, SendResetPasswordEmailSuccess,
-        SendResetPasswordEmailFailure, AccountActivationRequired,
-        STATES as MODEL_STATES } from '../../Models';
+        SendResetPasswordEmailFailure, AccountActivationRequired } from '../../Models';
 
 /**
  *
@@ -341,11 +340,11 @@ function processQueryString({ params, userID, setState, createModel, STATES, pat
                             actions: {
                                 onClose: ({ state, setState }) => {
                                     if (state !== 'RESET_PASSWORD_FORM') {
-                                        setState(MODEL_STATES.CLOSED);
+                                        setState(STATES.CLOSED);
                                     }
                                 },
                                 onCancel: ({ state, setState}) => {
-                                    setState(MODEL_STATES.CLOSED);
+                                    setState(STATES.CLOSED);
                                 },
                                 onResetPassword: ({ state, setState, STATES, pwd }) => {
                                     dispatch(resetPassword({ token, state, setState, createModel, STATES, pwd}));
@@ -356,7 +355,7 @@ function processQueryString({ params, userID, setState, createModel, STATES, pat
                             model: ResetPasswordSuccess,
                             actions: {
                                 onClose: ({state, setState, history }) => {
-                                    setState(MODEL_STATES.CLOSED);
+                                    setState(STATES.CLOSED);
                                     history.push(ROUTES.SIGN_IN);
                                 }
                             }
@@ -451,7 +450,7 @@ function sendEmailVerification({ userData, setState, createModel, STATES }) {
             }
         }]);
 
-        setState(MODEL_STATES.LOADING);
+        setState(STATES.LOADING);
 
         return axios.post('/api/auth/validate-email', userData)
             .then(response => {
