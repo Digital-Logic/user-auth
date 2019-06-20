@@ -38,13 +38,13 @@ function Home({ classes, className }) {
                     <CardContent className={classes.text}>
                         <Typography>This project provides a full stack solution to user authentication, authorization, and access control.</Typography>
 
-                        <Typography><Typography className={classes.header} component="span">Socket.IO: </Typography>
+                        <Typography><Typography className={classes.header} component="span">Socket.IO </Typography>
                         provides synchronization of application state between multiple instances.</Typography>
 
-                        <Typography><Typography className={classes.header} component="span">Authentication: </Typography>Provides local account
-                        creation, and login through Google and Facebook OAuth APIs. Provides email verification, account management, and password reset.</Typography>
+                        <Typography><Typography className={classes.header} component="span">Authentication </Typography>Local account
+                        creation and login through Google and Facebook OAuth APIs. Email verification, account management, and password reset.</Typography>
 
-                        <Typography><Typography className={classes.header} component="span">Access Control: </Typography>
+                        <Typography><Typography className={classes.header} component="span">Access Control </Typography>
                         is provided at a per-route and a per-component level. Access control rules are provided by the back-end during app initialization.</Typography>
                     </CardContent>
                 </Card>

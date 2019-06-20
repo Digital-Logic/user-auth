@@ -7,6 +7,7 @@ import { InvalidToken, AccountActivationSend, AccountActivationFailed,
         ResetPassword, ResetPasswordSuccess, ResetPasswordFailed,
         ResetPasswordTokenInvalid, SendResetPasswordEmailSuccess,
         SendResetPasswordEmailFailure, AccountActivationRequired } from '../../Models';
+import { GLOBAL_ACTIONS } from '../global';
 
 /**
  *
@@ -14,8 +15,7 @@ import { InvalidToken, AccountActivationSend, AccountActivationFailed,
 function socketSubscribe(dispatch) {
 
     const handlers = [
-        ACTIONS.SYNC_AUTH_SUBSCRIBE_SUCCESS,
-        ACTIONS.SYNC_AUTH_LOGOUT
+        ACTIONS.SYNC_AUTH_SUBSCRIBE_SUCCESS
     ].map( event => ([
         event,
         dispatch({
@@ -23,6 +23,22 @@ function socketSubscribe(dispatch) {
             event
         })
     ]));
+
+    handlers.push(['SYNC_AUTH_LOGOUT',
+        dispatch({
+            type: SOCKET_ACTIONS.SUBSCRIBE,
+            event: 'SYNC_AUTH_LOGOUT',
+            handle: data => {
+                dispatch({
+                    type: 'RECEIVE: SYNC_AUTH_LOGOUT',
+                    data
+                });
+
+                dispatch({
+                    type: GLOBAL_ACTIONS.AUTH_PURGE
+                });
+            }
+        })]);
 
     return () => {
         handlers.forEach(
@@ -57,6 +73,11 @@ function getAuth() {
             .then(({ data: user }) => {
                 dispatch(success(user));
                 dispatch(syncAuthUpdate(user));
+                dispatch({
+                    type: GLOBAL_ACTIONS.AUTH_PURGE,
+                    rules: user.rules
+                });
+
                 return user;
             })
             .catch(error => {

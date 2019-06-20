@@ -43,7 +43,7 @@ const initialState = {
     rules: [{
         actions: 'read',
         subject: ['User'],
-        fields: ['firstName', 'lastName']
+        fields: ['firstName', 'lastName', '_id']
     }]
 };
 
@@ -89,8 +89,10 @@ function reducer(state=initialState, { type, user }) {
     }
 }
 
+const DEFAULT_RULES = initialState.rules;
 
 export {
     reducer as authReducer,
-    ACTIONS
+    ACTIONS,
+    DEFAULT_RULES
 };

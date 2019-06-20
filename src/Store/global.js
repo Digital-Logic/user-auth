@@ -1,11 +1,12 @@
 import { Ability } from '@casl/ability';
 import { permittedFieldsOf } from '@casl/ability/extra';
+import { DEFAULT_RULES } from './auth/auth.reducer';
 
 const GLOBAL_ACTIONS = Object.freeze({
     AUTH_PURGE: 'AUTH_PURGE'
 });
 
-function purgeData({ access = 'read', subject, data, rules }) {
+function purgeData({ access = 'read', subject, data, rules = DEFAULT_RULES }) {
     const ability = new Ability(rules, { subjectName });
 
     if (ability.can('read', subject)) {
