@@ -10,7 +10,8 @@ import { withModelManager, ModelContext, SignOut } from './Models';
 import { connect } from 'react-redux';
 import { authActions } from './Store';
 import queryString from 'query-string';
-
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
     root: {
@@ -24,6 +25,27 @@ const styles = theme => ({
     spacer: {
         ...theme.mixins.toolbar,
         marginBottom: theme.spacing.unit * 2
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 0, left: 0, right: 0,
+        height: '30px',
+        backgroundColor: theme.palette.primary.dark,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 20px',
+        color: theme.palette.getContrastText(theme.palette.primary.dark),
+        '& > span': {
+            display: 'flex',
+            alignItems: 'center',
+        },
+        '& a': {
+            color: theme.palette.getContrastText(theme.palette.primary.dark),
+        }
+    },
+    footerSpacer: {
+        height: '30px'
     }
 });
 
@@ -71,7 +93,7 @@ function App({ classes, isAuthenticated, userID, getAuth, processQueryString,
 
             <Switch>
                 <Route exact path={ROUTES.HOME} render={(props) =>
-                    <Home className={classes.card} {...props} />} />
+                    <Home {...props} />} />
 
                 <Route path={ROUTES.OAUTH}
                     render={props => <Home className={classes.card} {...props} />} />
@@ -93,6 +115,15 @@ function App({ classes, isAuthenticated, userID, getAuth, processQueryString,
                 <Route path="/" render={(props) =>
                     <NotFound className={classes.card} {...props} />} />
             </Switch>
+
+            <div className={classes.footerSpacer} />
+
+            <div className={classes.footer}>
+                <Typography variant="subtitle2">Source:
+                    <Button href="https://github.com/Digital-Logic/user-auth" target="_blank" size="small">Github.com</Button>
+                </Typography>
+                <Button href="https://digital-logic.net/" target="_blank" size="small">digital-logic.net</Button>
+            </div>
         </div>
     );
 }
