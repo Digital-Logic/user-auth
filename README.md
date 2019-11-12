@@ -1,6 +1,6 @@
 # User Authentication
 
-~~## [Live Demo](https://auth-app.digital-logic.net/)
+## ~~[Live Demo](https://auth-app.digital-logic.net/)
 
 * Front-end: React, Redux, Redux-Form, Redux-Thunk, Material-ui, casl
 * Back-end: Express, Mongo / Mongoose, Casl, JWT, Node-Mailer
